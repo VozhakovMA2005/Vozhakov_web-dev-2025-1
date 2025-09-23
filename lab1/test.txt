@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лабараторная работа 1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lobster&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <h1>Food construct</h1>
+        <nav class="main">
+            <ul>
+                <li><a href="#about">О нас</a></li>
+                <li><a href="#">Собрать ланч</a></li>
+                <li><a href="#">Заказы</a></li>
+                <li><a href="#footer">Контакты</a></li>
+            </ul>
+
+        </nav>
+    </header>
+    <main>
+        <section id="about">
+            <img src="lunch.jpg" alt="Бизнес-ланч">
+            <h2>О нас</h2>
+            <p>Кухня нашего ресторана создает бизнес-ланчи с особым вниманием к вкусу и качеству, вдохновляясь лучшими
+                традициями и современными трендами. Мы тщательно подбираем свежие сезонные продукты, чтобы предложить
+                вам сбалансированное и разнообразное меню, которое зарядит энергией на весь оставшийся день. Наша цель —
+                сделать вашу деловую трапезу не просто обеденным перерывом, а приятным и вкусным ритуалом, который вы
+                захотите повторить.</p>
+        </section>
+        <section id="cons" class="cons">
+            <h2>Наши преимущества</h2>
+            <ul>
+                <li>Свежесть и качество</li>
+                <li>Скорость и удобство</li>
+                <li>Выгодная цена</li>
+            </ul>
+        </section>
+        <section id="bestsellers">
+            <h2>Топ-5 популярных блюд</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>Название</th>
+                        <th>Кол-во заказов в неделю</th>
+                        <th>Цена</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Лазанья</td>
+                        <td>185</td>
+                        <td>385₽</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Том ям с креветками</td>
+                        <td>161</td>
+                        <td>365₽</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Норвежский суп</td>
+                        <td>144</td>
+                        <td>270₽</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Жареная картошка с грибами</td>
+                        <td>132</td>
+                        <td>150₽</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Котлеты из курицы с картофельным пюре</td>
+                        <td>128</td>
+                        <td>225₽</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <footer id="footer">
+        <p>Позвонить нам <a href="tel:+71234567890">+7-123-456-78-90</a>
+        </p>
+    </footer>
+</body>
+
+</html>
