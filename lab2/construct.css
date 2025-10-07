@@ -23,7 +23,7 @@ nav a.active {
   display: flex;
   flex-direction: column;
   padding: 30px 40px;
-  background-color: #fff;
+  background-color: #080707;
   border-radius: 35px;
   filter: drop-shadow(17px 19px 24px rgba(0, 0, 0, 0.13));
   cursor: pointer;
