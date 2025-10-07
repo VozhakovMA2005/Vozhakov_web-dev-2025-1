@@ -52,11 +52,11 @@ nav a {
 }
 
 nav a:hover {
-  color: tomato;
+  color: rgb(71, 135, 255);
 }
 
 nav a.active {
-  color: tomato;
+  color: rgb(71, 135, 255);
 }
 
 main {
@@ -129,7 +129,7 @@ footer a {
 }
 
 footer a:hover {
-  color: tomato;
+  color: rgb(71, 135, 255);
 }
 
 .noto-sans-marchen-regular {
