@@ -110,10 +110,10 @@ nav a.active {
 }
 
 .meals_form h2 {
-  font-size: 20px;
+  font-size: 3rem;
   font-weight: bold;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 2rem;
 }
 
 .all_meals_blocks {
@@ -124,7 +124,7 @@ nav a.active {
 
 .order_block h3,
 .client-block h3 {
-  font-size: 16px;
+  font-size: 2rem;
   font-weight: bold;
   margin-bottom: 15px;
 }
