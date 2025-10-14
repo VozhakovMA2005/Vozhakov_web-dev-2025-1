@@ -84,6 +84,114 @@ nav a.active {
   color: #000;
 }
 
+/*форма*/
+
+/* Контейнер формы */
+.meals_form {
+    max-width: 1100px;
+    margin: 40px auto;
+}
+
+/* Заголовок формы */
+.meals_form h2 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* Две колонки */
+.all_meals_blocks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+/* Заголовки блоков */
+.order_block h3,
+.client-block h3 {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* Лейблы */
+.meals_form label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+/* Поля */
+.meals_form input,
+.meals_form select,
+.meals_form textarea {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+/* Текстовое поле */
+.meals_form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Чекбокс */
+.meals_form input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+/* Радиокнопки */
+.time-of-order {
+    border: none;
+    margin-bottom: 15px;
+    padding: 0;
+}
+
+.time-of-order legend {
+    font-size: 14px;
+    font-weight: normal;
+    margin-bottom: 5px;
+}
+
+.time-of-order label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Подписи */
+.note {
+    font-size: 12px;
+    color: #000;
+    margin: -10px 0 10px;
+}
+
+/* Кнопки */
+.form-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.form-buttons button {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: 1px solid #000;
+    cursor: pointer;
+}
+
+.form-buttons button[type="reset"] {
+    background: #f0f0f0;
+    color: #000;
+}
+
+.form-buttons button[type="submit"] {
+    background: #000;
+    color: #fff;
+}
+
+
 @media (max-width: 800px) {
   .meals-grid {
     grid-template-columns: 1fr 1fr;

@@ -124,6 +124,104 @@
         </section>
 
     </main>
+    
+    <!-- Add form -->
+    <section class="meals_form">
+    
+        <!-- Заголовок блока -->
+        <h2>Сделать заказ</h2> 
+    
+        <!--Форма -->
+        <form action="https://httpbin.org/post" method="post" enctype="multipart/form-data">
+
+            <div class="all_meals_blocks">
+
+                <!-- Блок с заказом клиента -->
+                <div class="order_block">
+        
+                    <!-- Заголовок блока -->
+                    <h3>Ваш заказ</h3>
+
+                    <!-- Заполнение блока -->
+                    <label for="soup_form">Суп</label>
+                    <select id="soup_form" name="soup" required>
+                        <option value="">----Выберите суп----</option>
+                        <option value="soup_of_day">Суп дня</option>
+                        <option value="tom_yan">Том ян</option>
+                        <option value="north_soup">Норвежский суп</option>
+                    </select>
+                
+                    <label for="main_form">Главное блюдо</label>
+                    <select id="main_form" name="main" required>
+                        <option value="">----Выберите главное блюдо----</option>
+                        <option value="potato_with_chicken">Жареная картошка с курицей</option>
+                        <option value="shaurma">Шаурма</option>
+                        <option value="kotleta_with_pure">Котлеты с картофельным пюре</option>
+                    </select>
+                
+                    <label for="drink_form">Напиток</label>
+                    <select id="drink_form" name="drink" required>
+                        <option value="">----Выберите напиток----</option>
+                        <option value="orange_juice">Апельсиновый сок</option>
+                        <option value="apple_juice">Яблочный сок</option>
+                        <option value="carrot_juice">Морковный сок</option>
+                    </select>
+
+                    <label for="comments">Комментарии к заказу</label>
+                    <textarea id="comments" name="comments" rows="4"></textarea>
+                </div>
+
+                <!-- Блок с данными клиента -->
+                <div class="client-block">
+
+                    <!-- Заголовок блока -->
+                    <h3>Ваши данные</h3>
+
+                    <!-- Заполнение блока -->
+                    <label for="name">Имя</label>
+                    <input type="text" id="name" name="name" placeholder="Ivan Ivanovich" required>
+
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="for@example.ru" required>
+
+                    <label class="checkbox-label">
+                        Получать информацию о скидках и акциях
+                        <input type="checkbox" name="subscribe" checked>   
+                    </label>
+                
+                    <label for="phone">Номер телефона</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+7 (000) 000-00-00" required>
+
+                    <label for="address">Адрес доставки</label>
+                    <input type="text" id="address" name="address" placeholder="Измайловский бульвар 38/2" required>
+                    <p class="note">Доставка осуществляется только по Москве</p>
+
+                    <fieldset class="time-of-order">
+                        <legend>Время доставки:</legend>
+                        <label>
+                            <input type="radio" name="order_time_type" value="fast" required>Как можно скорее
+                        </label>
+                        <label>
+                            <input type="radio" name="order_time_type" value="by_time">К указанному времени
+                        </label>
+                    </fieldset>
+
+                    <label for="delivery_time">Укажите время доставки</label>
+                    <input type="time" id="delivery_time" name="delivery_time" min="07:00" max="23:00">
+                    <p class="note">Доступное время доставки с 7:00 до 23:00</p>
+
+                    <div class="form-buttons">
+                        <button type="reset">Сбросить</button>
+                        <button type="submit">Отправить</button>
+                    </div>
+
+                </div>
+
+            </div>
+            
+        </form>
+
+    </section>
 
     <footer id="contacts">
         <p>Позвоните нам <a href="tel:+74950000000">+7 (495) 000-00-00</a></p>
