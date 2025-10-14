@@ -184,11 +184,11 @@
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" placeholder="for@example.ru" required>
 
-                    <label class="checkbox-label">
-                        Получать информацию о скидках и акциях
-                        <input type="checkbox" name="subscribe" checked>   
-                    </label>
-                
+                    <div class="checkbox-label">
+                        <label for="checkbox">Получать информацию о скидках и акциях</label>
+                        <input class="checkbox-label-check" type="checkbox" name="subscribe" id="checkbox" checked>
+                    </div>
+
                     <label for="phone">Номер телефона</label>
                     <input type="tel" id="phone" name="phone" placeholder="+7 (000) 000-00-00" required>
 
@@ -198,12 +198,16 @@
 
                     <fieldset class="time-of-order">
                         <legend>Время доставки:</legend>
-                        <label>
-                            <input type="radio" name="order_time_type" value="fast" required>Как можно скорее
-                        </label>
-                        <label>
-                            <input type="radio" name="order_time_type" value="by_time">К указанному времени
-                        </label>
+                        <div class="radio-group">
+                            <label>
+                                Как можно скорее
+                                <input class="radio-group-button" type="radio" name="order_time_type" value="fast" required>
+                            </label>
+                            <label>
+                                К указанному времени
+                                <input class="radio-group-button" type="radio" name="order_time_type" value="by_time">
+                            </label>
+                        </div>
                     </fieldset>
 
                     <label for="delivery_time">Укажите время доставки</label>
@@ -211,8 +215,8 @@
                     <p class="note">Доступное время доставки с 7:00 до 23:00</p>
 
                     <div class="form-buttons">
-                        <button type="reset">Сбросить</button>
-                        <button type="submit">Отправить</button>
+                        <button class="form-buttons-reset" type="reset">Сбросить</button>
+                        <button class="form-buttons-submit" type="submit">Отправить</button>
                     </div>
 
                 </div>
