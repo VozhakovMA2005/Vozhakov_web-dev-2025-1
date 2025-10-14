@@ -106,7 +106,7 @@ nav a.active {
 .meals_form {
   max-width: 95rem;
   margin:auto;
-  padding: 0;
+  padding: 5rem;
 }
 
 .meals_form h2 {
