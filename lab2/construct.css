@@ -8,8 +8,22 @@
   font-size: 10px;
 }
 
-.body_center{
+.header_center{
+  max-width: 95rem;
+  margin:auto;
+  padding: 0;
+}
+
+.main_center{
+  max-width: 95rem;
   margin:0 auto;
+  padding: 0;
+}
+
+.footer_center{
+  max-width: 95rem;
+  margin:0 auto;
+  padding: 0;
 }
 
 nav a.active {
@@ -80,7 +94,6 @@ nav a.active {
   cursor: pointer;
   margin-top: 10px;
   transition: background-color 0.3s ease, color 0.3s ease;
-  align-self: start;
 }
 
 .meal-map:hover button {

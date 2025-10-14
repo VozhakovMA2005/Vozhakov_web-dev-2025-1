@@ -14,7 +14,6 @@ html, body {
 
 body {
   min-height: 100vh;
-  display: flex;
   flex-direction: column;
   font-family: "Noto Sans Marchen", "Roboto", sans-serif;
   font-size: 16px;
@@ -22,10 +21,6 @@ body {
   line-height: 1.5;
   background-color: #f4f4f4;
   color: #333;
-}
-
-.body_main_center{
-  margin:0 auto;
 }
 
 header {
