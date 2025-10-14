@@ -24,6 +24,10 @@ body {
   color: #333;
 }
 
+.body_main_center{
+  margin:0 auto;
+}
+
 header {
   color: black;
   padding: 1.2rem 2rem;

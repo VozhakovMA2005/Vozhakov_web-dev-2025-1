@@ -8,6 +8,10 @@
   font-size: 10px;
 }
 
+.body_center{
+  margin:0 auto;
+}
+
 nav a.active {
   color: rgb(71, 135, 255);
 }
