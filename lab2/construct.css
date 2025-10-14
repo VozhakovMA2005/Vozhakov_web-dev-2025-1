@@ -17,20 +17,20 @@ nav a.active {
   grid-template-columns: 1fr 1fr 1fr;
   gap: 10px;
   justify-self: center;
+  margin-top: 1rem;
 }
 .meal-map {
-  cursor: pointer;
   display: flex;
+  width: 30rem;
+  justify-content: center;
   flex-direction: column;
-  flex-wrap: wrap;
-  align-content: center;
-  padding: 3rem 4rem;
+  padding: 30px 40px;
+  background-color: #ffffff;
   border-radius: 35px;
   filter: drop-shadow(17px 19px 24px rgba(0, 0, 0, 0.13));
-  background-color: white;
-  border: 2px solid transparent;
-  margin-bottom: 3rem;
-  width: 30rem;
+  cursor: pointer;
+  transition: border 0.3s ease, background-color 0.3s ease;
+  min-height: 50rem;
 }
 
 #construct_main_content h2{
