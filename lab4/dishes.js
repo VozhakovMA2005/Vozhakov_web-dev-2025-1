@@ -1,3 +1,4 @@
+/* exported dishes */
 "use strict";
 
 const dishes = [

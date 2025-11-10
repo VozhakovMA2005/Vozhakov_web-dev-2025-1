@@ -1,3 +1,4 @@
+/* global dishes */
 "use strict";
 document.addEventListener("DOMContentLoaded", function () {
     const categories = ['soup', 'main', 'drink'];
