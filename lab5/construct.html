@@ -30,47 +30,111 @@
     
     <main id="construct_main_content">
         <div class="main_center">
+            <!-- Супы -->
             <section class="soup">
                 <h2>Супы</h2>
+                <div class="filters">
+                    <button data-kind="fish">Рыбный</button>
+                    <button data-kind="meat">Мясной</button>
+                    <button data-kind="veg">Вегетарианский</button>
+                </div>
                 <div class="meals-grid" id="soup_grid"></div>
             </section>
+
+            <!-- Главные блюда -->
             <section class="main_meals">
                 <h2>Главные блюда</h2>
+                <div class="filters">
+                    <button data-kind="fish">Рыбное</button>
+                    <button data-kind="meat">Мясное</button>
+                    <button data-kind="veg">Вегетарианское</button>
+                </div>
                 <div class="meals-grid" id="main_grid"></div>
             </section>
+
+            <!-- Напитки -->
             <section class="drinks">
                 <h2>Напитки</h2>
+                <div class="filters">
+                    <button data-kind="cold">Холодный</button>
+                    <button data-kind="hot">Горячий</button>
+                </div>
                 <div class="meals-grid" id="drinks_grid"></div>
+            </section>
+
+            <!-- Салаты и стартеры -->
+            <section class="salads">
+                <h2>Салаты и стартеры</h2>
+                <div class="filters">
+                    <button data-kind="fish">Рыбный</button>
+                    <button data-kind="meat">Мясной</button>
+                    <button data-kind="veg">Вегетарианский</button>
+                </div>
+                <div class="meals-grid" id="salads_grid"></div>
+            </section>
+
+            <!-- Десерты -->
+            <section class="desserts">
+                <h2>Десерты</h2>
+                <div class="filters">
+                    <button data-kind="small">Маленькая порция</button>
+                    <button data-kind="medium">Средняя порция</button>
+                    <button data-kind="large">Большая порция</button>
+                </div>
+                <div class="meals-grid" id="desserts_grid"></div>
             </section>
         </div>
     </main>
+
     
     <section class="meals_form">
         <h2>Сделать заказ</h2>
         <form action="https://httpbin.org/post" method="post">
             <div class="all_meals_blocks">
-                <!-- Левый блок — ваш заказ -->
+                <!-- Левый блок -->
                 <div class="order_block">
                     <h3>Ваш заказ</h3>
                     <p id="nothing-chosen">Ничего не выбрано</p>
+                
                     <div class="order_category" style="display:none;">
                         <h4>Суп</h4>
                         <p id="order_soup" class="order_item empty">Блюдо не выбрано</p>
                     </div>
+                
                     <div class="order_category" style="display:none;">
                         <h4>Главное блюдо</h4>
                         <p id="order_main" class="order_item empty">Блюдо не выбрано</p>
                     </div>
+                
                     <div class="order_category" style="display:none;">
                         <h4>Напиток</h4>
                         <p id="order_drink" class="order_item empty">Напиток не выбран</p>
                     </div>
+                
+                    <div class="order_category" style="display:none;">
+                        <h4>Салаты и стартеры</h4>
+                        <p id="order_salads" class="order_item empty">Блюдо не выбрано</p>
+                    </div>
+                
+                    <div class="order_category" style="display:none;">
+                        <h4>Десерты</h4>
+                        <p id="order_desserts" class="order_item empty">Блюдо не выбрано</p>
+                    </div>
+                
                     <div id="order_price_block" class="price_block" style="display:none;">
                         <h4>Стоимость заказа:</h4>
                         <p id="order_price">0 ₽</p>
                     </div>
+                
                     <label for="order_comment">Комментарий к заказу</label>
                     <textarea id="order_comment" name="comment" rows="4" cols="30" placeholder="Ваш комментарий..."></textarea>
+                
+                    <input type="hidden" id="soup-select" name="order_soup" value="">
+                    <input type="hidden" id="main-select" name="order_main" value="">
+                    <input type="hidden" id="drink-select" name="order_drink" value="">
+                    <input type="hidden" id="salads-select" name="order_salads" value="">
+                    <input type="hidden" id="desserts-select" name="order_desserts" value="">
+                    <input type="hidden" id="order_price_input" name="order_price" value="">
                 </div>
 
                 <!-- Правый блок-->
@@ -118,6 +182,7 @@
     <script src="dishes.js"></script>
     <script src="render.js"></script>
     <script src="orderToForm.js"></script>
+    <script src="filter.js"></script>
     
     </body>
 </html>

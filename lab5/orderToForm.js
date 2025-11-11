@@ -1,100 +1,87 @@
+/* global dishes */
 "use strict";
+document.addEventListener("DOMContentLoaded", () => {
+    const cats = ["soup", "main", "drink", "salads", "desserts"];
+    const orderCart = new Map();
+    const inputs = {
+        soup: "#soup-select",
+        main: "#main-select",
+        drink: "#drink-select",
+        salads: "#salads-select",
+        desserts: "#desserts-select",
+        price: "#order_price_input"
+    };
+    const nothing = document.getElementById("nothing-chosen");
+    const priceBlock = document.getElementById("order_price_block");
+    nothing.style.display = "block";
+    priceBlock.style.display = "none";
+    const updateDisplay = () => {
+        const hasSelection = orderCart.size > 0;
+        nothing.style.display = hasSelection ? "none" : "block";
+        let sum = 0;
+        cats.forEach(cat => {
+            const p = document.getElementById(`order_${cat}`);
+            const catBlock = p.parentNode;
 
-document.addEventListener("DOMContentLoaded", function () {
-    const categories = ["soup", "main", "drink"];
-    let orderCart = {};
-    let sum = 0;
+            if (hasSelection) {
+                catBlock.style.display = "block";
 
-    const nothingChosen = document.getElementById("nothing-chosen");
-    const orderPriceBlock = document.getElementById("order_price_block");
-    const orderPrice = document.getElementById("order_price");
-
-    nothingChosen.style.display = "block";
-    orderPriceBlock.style.display = "none";
-    categories.forEach(cat => {
-        document.getElementById(`order_${cat}`).parentNode.style.display = "none";
-    });
-
-    categories.forEach(cat => {
-        let input = document.createElement("input");
-        input.type = "hidden";
-        input.name = `order_${cat}`;
-        input.id = `${cat}_select`;
-        document.querySelector("form").appendChild(input);
-    });
-
-    let priceInput = document.createElement("input");
-    priceInput.type = "hidden";
-    priceInput.name = "order_price";
-    priceInput.id = "order_price_input";
-    priceInput.value = "0";
-    document.querySelector("form").appendChild(priceInput);
-
-    document.querySelectorAll(".meal-map button").forEach(button => {
-        button.addEventListener("click", function () {
-            const mealDiv = this.closest(".meal-map");
-            const dishKeyword = mealDiv.dataset.dish;
-            const dish = dishes.find(d => d.keyword === dishKeyword);
-            if (!dish) return;
-
-            document.querySelectorAll(".meal-map.selected").forEach(el => {
-                const d = dishes.find(dish => dish.keyword === el.dataset.dish);
-                if (d.category === dish.category) el.classList.remove("selected");
-            });
-
-            mealDiv.classList.add("selected");
-
-            orderCart[dish.category] = dish;
-
-            nothingChosen.style.display = "none";
-            categories.forEach(cat => {
-                const catBlock = document.getElementById(`order_${cat}`).parentNode;
-                const catText = document.getElementById(`order_${cat}`);
-                const catInput = document.getElementById(`${cat}_select`);
-
-                if (orderCart[cat]) {
-                    catBlock.style.display = "block";
-                    catText.textContent = `${orderCart[cat].name} ${orderCart[cat].price} ₽`;
-                    catInput.value = orderCart[cat].keyword;
+                if (orderCart.has(cat)) {
+                    const d = orderCart.get(cat);
+                    p.textContent = `${d.name} ${d.price} ₽`;
+                    document.querySelector(inputs[cat]).value = d.keyword;
+                    sum += d.price;
                 } else {
-                    catBlock.style.display = "block";
-                    catText.textContent = cat === "drink" ? "Напиток не выбран" : "Блюдо не выбрано";
-                    catInput.value = "";
+                    if (cat === "drink") {
+                        p.textContent = "Напиток не выбран";
+                    } else if (cat === "salads") {
+                        p.textContent = "Салат не выбран";
+                    } else if (cat === "desserts") {
+                        p.textContent = "Десерт не выбран";
+                    } else {
+                        p.textContent = "Блюдо не выбрано";
+                    }
+                    document.querySelector(inputs[cat]).value = "";
                 }
+            } else {
+                catBlock.style.display = "none";
+                if (cat === "drink") {
+                    p.textContent = "Напиток не выбран";
+                } else if (cat === "salads") {
+                    p.textContent = "Салат не выбран";
+                } else if (cat === "desserts") {
+                    p.textContent = "Десерт не выбран";
+                } else {
+                    p.textContent = "Блюдо не выбрано";
+                }
+                document.querySelector(inputs[cat]).value = "";
+            }
+        });
+        document.getElementById("order_price").textContent = `${sum} ₽`;
+        document.querySelector(inputs.price).value = sum;
+        priceBlock.style.display = sum ? "block" : "none";
+    };
+    document.querySelectorAll(".meal-map button").forEach(btn => {
+        btn.addEventListener("click", e => {
+            const div = e.target.closest(".meal-map");
+            const d = dishes.find(x => x.keyword === div.dataset.dish);
+            document.querySelectorAll(".meal-map.selected").forEach(el => {
+                const elDish = dishes.find(x => x.keyword === el.dataset.dish);
+                if (elDish.category === d.category) el.classList.remove("selected");
             });
-
-            sum = Object.values(orderCart).reduce((acc, d) => acc + d.price, 0);
-            orderPrice.textContent = `${sum} ₽`;
-            priceInput.value = sum;
-            orderPriceBlock.style.display = sum > 0 ? "block" : "none";
+            div.classList.add("selected");
+            orderCart.set(d.category, d);
+            updateDisplay();
         });
     });
-
-    document.querySelector(".form-buttons-reset").addEventListener("click", function () {
+    document.querySelector(".form-buttons-reset").addEventListener("click", () => {
         document.querySelectorAll(".meal-map.selected").forEach(el => el.classList.remove("selected"));
-        orderCart = {};
-        sum = 0;
-
-        nothingChosen.style.display = "block";
-        orderPriceBlock.style.display = "none";
-
-        categories.forEach(cat => {
-            const catBlock = document.getElementById(`order_${cat}`).parentNode;
-            const catText = document.getElementById(`order_${cat}`);
-            const catInput = document.getElementById(`${cat}_select`);
-
-            catBlock.style.display = "none";
-            catText.textContent = cat === "drink" ? "Напиток не выбран" : "Блюдо не выбрано";
-            catInput.value = "";
-        });
-
-        priceInput.value = "0";
+        orderCart.clear();
+        updateDisplay();
     });
-
-    const form = document.querySelector("form");
-    form.addEventListener("submit", function (e) {
-        if (Object.keys(orderCart).length === 0) {
-            alert("Выберите хотя бы одно блюдо для заказа");
+    document.querySelector("form").addEventListener("submit", e => {
+        if (!orderCart.size) {
+            alert("Выберите хотя бы одно блюдо");
             e.preventDefault();
         }
     });

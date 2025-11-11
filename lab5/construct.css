@@ -101,6 +101,36 @@ nav a.active {
   color: #000;
 }
 
+.filters {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filters button {
+  padding: 8px 20px;
+  font-size: 1.6rem;
+  border: 2px solid rgb(71, 135, 255);
+  border-radius: 10px;
+  background-color: #f1eee9;
+  color: rgb(71, 135, 255);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filters button:hover {
+  background-color: rgb(71, 135, 255);
+  color: #fff;
+}
+
+.filters button.active-filter {
+  background-color: rgb(71, 135, 255);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
 /*форма*/
 
 .meals_form {
