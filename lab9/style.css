@@ -1,0 +1,257 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root{
+  font-size: 10px;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  flex-direction: column;
+  font-family: "Noto Sans Marchen", "Roboto", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+header {
+  color: black;
+  padding: 1.2rem 2rem;
+}
+
+header h1 {
+  font-size: 5rem;
+  font-weight: 900;
+  margin-bottom: 0.6rem;
+}
+
+nav{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+}
+
+nav a {
+  text-decoration: none;
+  font-size: 3rem;
+  color: #000;
+  font-family: "Noto Sans Marchen", sans-serif;
+  padding: 0.2rem 0.4rem;
+  transition: color 0.15s ease;
+}
+
+nav a:hover {
+  color: rgb(71, 135, 255);
+}
+
+nav a.active {
+  color: rgb(71, 135, 255);
+}
+
+main {
+  flex: 1 0 auto;
+  padding: 1.2rem 2rem;
+}
+
+section {
+  margin-bottom: 2.5rem;
+}
+
+section h2 {
+  font-size: 3rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.about-image {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  display: block;
+}
+
+section p {
+  font-family: Arial, sans-serif;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+ul {
+  list-style: disc inside;
+  margin-left: 1.2rem;
+}
+ul li {
+  font-size: 2rem;
+}
+
+table {
+  width: 60%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 1.7rem;
+}
+
+table th, table td {
+  border: 1px solid #000;
+  padding: 0.8rem;
+  text-align: left;
+}
+
+table th {
+  font-weight: 700;
+  background-color: #f5f5f5;
+}
+
+footer {
+  padding: 2rem;
+  font-size: 2rem;
+  background-color: black;
+  color: white;
+  width: 100%;
+}
+
+footer a {
+  color: #fff;
+  font-family: "Noto Sans Marchen", sans-serif;
+  text-decoration: none;
+}
+
+footer a:hover {
+  color: rgb(71, 135, 255);
+}
+
+.noto-sans-marchen-regular {
+  font-family: "Noto Sans Marchen", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+#selected-dishes {
+    max-width: 1200px;
+    margin: 30px auto;
+}
+
+#selected-dishes h2 {
+    font-size: 30px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Сетка выбранных блюд */
+#selected-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.selected-item {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+/* Карточка выбранного блюда */
+.selected-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    display: flex;
+    flex-direction: column;
+}
+
+.selected-card img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+}
+
+.selected-info {
+    padding: 12px;
+}
+
+.selected-title {
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.remove-btn {
+    margin-top: 10px;
+    padding: 8px;
+    width: 100%;
+    background: #d32f2f;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.remove-btn:hover {
+    background: #b71c1c;
+}
+
+/* Текст "ничего не выбрано" */
+#empty-text {
+    font-size: 18px;
+    text-align: center;
+    color: #0f0f0f;
+    margin-top: 20px;
+}
+
+#selected-dishes a{
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+
+@media (max-width: 800px) {
+  .about-image {
+    width: 500px;
+  }
+
+  nav {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 600px) {
+  header h1 {
+    text-align: center;
+  }
+
+  nav {
+    flex-direction: column;
+    align-items: center;
+  }
+  nav a {
+    font-size: calc(3rem + 4px);
+  }
+
+  .about-image {
+    width: 100%;
+  }
+
+  table {
+    font-size: calc(1.7rem - 2px);
+  }
+}
+
+@media (max-width: 400px) {
+  table {
+    font-size: calc(1.7rem - 4px);
+  }
+}
