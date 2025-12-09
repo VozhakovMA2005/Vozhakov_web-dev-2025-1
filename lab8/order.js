@@ -4,15 +4,22 @@ let allDishes = [];
 let currentOrder = {};
 
 function loadOrderDishes() {
-    const url = "https://edu.std-900.ist.mospolytech.ru/labs/api/dishes";
+    const apiKey = "96326ceb-d317-435d-936d-68d3002346a4";
+    const url = `https://edu.std-900.ist.mospolytech.ru/labs/api/dishes?api_key=${apiKey}`;
+    
     return fetch(url)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Ошибка загрузки: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             allDishes = data;
             return data;
         })
         .catch(error => {
-            console.error('Ошибка загрузки блюд:', error);
+            createNotification(`Ошибка загрузки меню: ${error.message}`);
             return [];
         });
 }
@@ -164,6 +171,8 @@ function isValidCombo() {
 }
 
 function createNotification(text) {
+    document.querySelectorAll('.notification').forEach(el => el.remove());
+    
     let notification = document.createElement("div");
     let button = document.createElement("button");
     button.classList.add("notification-button");
@@ -175,6 +184,12 @@ function createNotification(text) {
     notification.innerHTML = `<p class="notification-text">${text}</p>`;
     notification.append(button);
     document.body.append(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
 }
 
 async function submitOrder(formData) {
@@ -190,17 +205,47 @@ async function submitOrder(formData) {
             body: JSON.stringify(formData)
         });
         
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Ошибка сервера: ${response.status} - ${errorText}`);
+        const responseText = await response.text();
+        let result;
+        
+        try {
+            result = JSON.parse(responseText);
+        } catch (e) {
+            throw new Error(`Сервер вернул некорректный ответ`);
         }
         
-        const result = await response.json();
+        if (!response.ok) {
+            if (result.error) {
+                throw new Error(result.error);
+            } else {
+                throw new Error(`Ошибка сервера ${response.status}`);
+            }
+        }
+        
         return result;
     } catch (error) {
-        console.error('Ошибка при отправке заказа:', error);
         throw error;
     }
+}
+
+function validateDeliveryTime(deliveryTime) {
+    if (!deliveryTime) return "Укажите время доставки";
+    
+    const time = new Date(`1970-01-01T${deliveryTime}:00`);
+    const minTime = new Date('1970-01-01T07:00:00');
+    const maxTime = new Date('1970-01-01T23:00:00');
+    const now = new Date();
+    const currentTime = new Date(`1970-01-01T${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:00`);
+    
+    if (time < minTime || time > maxTime) {
+        return "Время доставки должно быть с 7:00 до 23:00";
+    }
+    
+    if (time < currentTime) {
+        return "Время доставки не может быть раньше текущего времени";
+    }
+    
+    return null;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -245,42 +290,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
                 
-                if (form.delivery_type.value === 'by_time') {
-                    const deliveryTime = form.delivery_time.value;
-                    if (!deliveryTime) {
-                        createNotification("Укажите время доставки");
-                        return;
-                    }
-                    
-                    const time = new Date(`1970-01-01T${deliveryTime}:00`);
-                    const minTime = new Date('1970-01-01T07:00:00');
-                    const maxTime = new Date('1970-01-01T23:00:00');
-                    const now = new Date();
-                    const currentTime = new Date(`1970-01-01T${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:00`);
-                    
-                    if (time < minTime || time > maxTime) {
-                        createNotification("Время доставки должно быть с 7:00 до 23:00");
-                        return;
-                    }
-                    
-                    if (time < currentTime) {
-                        createNotification("Время доставки не может быть раньше текущего времени");
+                if (this.delivery_type.value === 'by_time') {
+                    const validationError = validateDeliveryTime(this.delivery_time.value);
+                    if (validationError) {
+                        createNotification(validationError);
                         return;
                     }
                 }
                 
                 const formData = {
-                    full_name: form.full_name.value,
-                    email: form.email.value,
-                    subscribe: form.subscribe.checked ? 1 : 0,
-                    phone: form.phone.value,
-                    delivery_address: form.delivery_address.value,
-                    delivery_type: form.delivery_type.value,
-                    comment: form.comment.value || ''
+                    full_name: this.full_name.value.trim(),
+                    email: this.email.value.trim(),
+                    subscribe: this.subscribe.checked ? 1 : 0,
+                    phone: this.phone.value.trim(),
+                    delivery_address: this.delivery_address.value.trim(),
+                    delivery_type: this.delivery_type.value,
+                    comment: this.comment.value ? this.comment.value.trim() : ''
                 };
                 
-                if (form.delivery_type.value === 'by_time') {
-                    formData.delivery_time = form.delivery_time.value;
+                if (this.delivery_type.value === 'by_time') {
+                    formData.delivery_time = this.delivery_time.value;
                 }
                 
                 if (currentOrder.soup) {
@@ -304,25 +333,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (dish) formData.dessert_id = dish.id;
                 }
                 
-                Object.keys(formData).forEach(key => {
-                    if (formData[key] === null || formData[key] === '' || formData[key] === undefined) {
-                        delete formData[key];
-                    }
-                });
-                
                 try {
                     const result = await submitOrder(formData);
-                    createNotification("Заказ успешно оформлен!");
+                    
+                    const orderDetails = `Заказ №${result.id} успешно оформлен!`;
+                    createNotification(orderDetails);
                     
                     clearOrder();
                     currentOrder = {};
                     renderOrderItems();
                     updateOrderForm();
-                    form.reset();
+                    
+                    this.reset();
+                    
+                    deliveryTimeInput.disabled = true;
+                    deliveryTimeInput.required = false;
+                    deliveryTimeInput.value = '';
                     
                 } catch (error) {
-                    createNotification("Ошибка при оформлении заказа. Пожалуйста, попробуйте еще раз.");
-                    console.error('Детали ошибки:', error);
+                    createNotification(`Ошибка оформления заказа: ${error.message}`);
                 }
             });
         }
