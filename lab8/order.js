@@ -19,7 +19,7 @@ function loadOrderDishes() {
             return data;
         })
         .catch(error => {
-            createNotification(`Ошибка загрузки меню: ${error.message}`);
+            console.error('Ошибка загрузки блюд:', error);
             return [];
         });
 }
@@ -133,21 +133,15 @@ function updateOrderForm() {
                 priceElem.textContent = `${dish.price} ₽`;
                 if (hiddenField) hiddenField.value = dish.id;
                 totalPrice += dish.price;
-                selectedElem.style.color = '#000';
-                priceElem.style.color = '#000';
             }
         } else {
             selectedElem.textContent = cat.defaultText;
             priceElem.textContent = '0 ₽';
             if (hiddenField) hiddenField.value = '';
-            selectedElem.style.color = '#666';
-            priceElem.style.color = '#666';
         }
     });
     
-    const totalElem = document.getElementById('sum');
-    totalElem.textContent = `${totalPrice} ₽`;
-    totalElem.style.color = '#000';
+    document.getElementById('sum').textContent = `${totalPrice} ₽`;
 }
 
 function isValidCombo() {
@@ -161,11 +155,11 @@ function isValidCombo() {
         return false;
     }
 
-    const combo1 = hasSoup && hasMain && hasSalad && hasDrink;     // суп, главное, салат, напиток
-    const combo2 = hasSoup && hasMain && hasDrink && !hasSalad;    // суп, главное, напиток
-    const combo3 = hasSoup && hasSalad && hasDrink && !hasMain;    // суп, салат, напиток
-    const combo4 = hasMain && hasSalad && hasDrink && !hasSoup;    // главное, салат, напиток
-    const combo5 = hasMain && hasDrink && !hasSoup && !hasSalad;   // главное, напиток
+    const combo1 = hasSoup && hasMain && hasSalad && hasDrink;
+    const combo2 = hasSoup && hasMain && hasDrink && !hasSalad;
+    const combo3 = hasSoup && hasSalad && hasDrink && !hasMain;
+    const combo4 = hasMain && hasSalad && hasDrink && !hasSoup;
+    const combo5 = hasMain && hasDrink && !hasSoup && !hasSalad;
 
     return combo1 || combo2 || combo3 || combo4 || combo5;
 }
@@ -205,47 +199,15 @@ async function submitOrder(formData) {
             body: JSON.stringify(formData)
         });
         
-        const responseText = await response.text();
-        let result;
-        
-        try {
-            result = JSON.parse(responseText);
-        } catch (e) {
-            throw new Error(`Сервер вернул некорректный ответ`);
-        }
-        
         if (!response.ok) {
-            if (result.error) {
-                throw new Error(result.error);
-            } else {
-                throw new Error(`Ошибка сервера ${response.status}`);
-            }
+            const error = await response.json();
+            throw new Error(error.error || `Ошибка сервера ${response.status}`);
         }
         
-        return result;
+        return await response.json();
     } catch (error) {
         throw error;
     }
-}
-
-function validateDeliveryTime(deliveryTime) {
-    if (!deliveryTime) return "Укажите время доставки";
-    
-    const time = new Date(`1970-01-01T${deliveryTime}:00`);
-    const minTime = new Date('1970-01-01T07:00:00');
-    const maxTime = new Date('1970-01-01T23:00:00');
-    const now = new Date();
-    const currentTime = new Date(`1970-01-01T${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:00`);
-    
-    if (time < minTime || time > maxTime) {
-        return "Время доставки должно быть с 7:00 до 23:00";
-    }
-    
-    if (time < currentTime) {
-        return "Время доставки не может быть раньше текущего времени";
-    }
-    
-    return null;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -260,44 +222,35 @@ document.addEventListener('DOMContentLoaded', function() {
         const deliveryTypeRadios = document.querySelectorAll('input[name="delivery_type"]');
         
         deliveryTimeInput.disabled = true;
-        deliveryTimeInput.required = false;
         
         deliveryTypeRadios.forEach(radio => {
             radio.addEventListener('change', function() {
                 if (this.value === 'now') {
                     deliveryTimeInput.disabled = true;
-                    deliveryTimeInput.required = false;
                     deliveryTimeInput.value = '';
                 } else {
                     deliveryTimeInput.disabled = false;
-                    deliveryTimeInput.required = true;
                 }
             });
-        });
-        
-        document.getElementById('reset').addEventListener('click', function() {
-            setTimeout(() => {
-                updateOrderForm();
-            }, 100);
         });
         
         if (form) {
             form.addEventListener('submit', async function(event) {
                 event.preventDefault();
                 
+                // Проверка комбо (требование ЛР)
                 if (!isValidCombo()) {
                     createNotification("Заказ не соответствует ни одному из доступных комбо. Пожалуйста, выберите блюда в соответствии с комбо.");
                     return;
                 }
                 
-                if (this.delivery_type.value === 'by_time') {
-                    const validationError = validateDeliveryTime(this.delivery_time.value);
-                    if (validationError) {
-                        createNotification(validationError);
-                        return;
-                    }
+                // Проверка времени доставки для типа "by_time"
+                if (this.delivery_type.value === 'by_time' && !this.delivery_time.value) {
+                    createNotification("Укажите время доставки");
+                    return;
                 }
                 
+                // Подготовка данных формы
                 const formData = {
                     full_name: this.full_name.value.trim(),
                     email: this.email.value.trim(),
@@ -308,10 +261,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     comment: this.comment.value ? this.comment.value.trim() : ''
                 };
                 
+                // Добавляем время доставки, если выбрано "by_time"
                 if (this.delivery_type.value === 'by_time') {
                     formData.delivery_time = this.delivery_time.value;
                 }
                 
+                // Добавляем ID блюд из текущего заказа
                 if (currentOrder.soup) {
                     const dish = allDishes.find(d => d.keyword === currentOrder.soup);
                     if (dish) formData.soup_id = dish.id;
@@ -333,24 +288,33 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (dish) formData.dessert_id = dish.id;
                 }
                 
+                // Отправка на сервер
                 try {
                     const result = await submitOrder(formData);
                     
-                    const orderDetails = `Заказ №${result.id} успешно оформлен!`;
-                    createNotification(orderDetails);
+                    // Успешное оформление
+                    createNotification(`Заказ №${result.id} успешно оформлен!`);
                     
+                    // Очищаем localStorage после успешной отправки (требование ЛР)
                     clearOrder();
                     currentOrder = {};
                     renderOrderItems();
                     updateOrderForm();
                     
-                    this.reset();
-                    
-                    deliveryTimeInput.disabled = true;
-                    deliveryTimeInput.required = false;
-                    deliveryTimeInput.value = '';
+                    // Сбрасываем форму с проверкой
+                    try {
+                        if (form && typeof form.reset === 'function') {
+                            form.reset();
+                        } else if (this && typeof this.reset === 'function') {
+                            this.reset(); // Используем контекст обработчика
+                        }
+                    } catch (resetError) {
+                        console.warn('Не удалось сбросить форму:', resetError);
+                        // Игнорируем ошибку сброса формы, так как заказ уже успешно отправлен
+                    }
                     
                 } catch (error) {
+                    // Ошибка оформления (требование ЛР - показываем уведомление)
                     createNotification(`Ошибка оформления заказа: ${error.message}`);
                 }
             });
