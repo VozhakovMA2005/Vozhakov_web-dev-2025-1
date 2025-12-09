@@ -3,7 +3,6 @@
 let allDishes = [];
 let currentOrder = {};
 
-// Загрузка данных о блюдах
 function loadOrderDishes() {
     const url = "https://edu.std-900.ist.mospolytech.ru/labs/api/dishes";
     return fetch(url)
@@ -18,12 +17,10 @@ function loadOrderDishes() {
         });
 }
 
-// Отображение состава заказа в левой колонке (карточки)
 function renderOrderItems() {
     const container = document.getElementById('order-items-container');
     const emptyMessage = document.getElementById('empty-order-message');
     
-    // Очищаем контейнер
     container.innerHTML = '';
     
     if (Object.keys(currentOrder).length === 0) {
@@ -35,7 +32,6 @@ function renderOrderItems() {
     emptyMessage.style.display = 'none';
     container.style.display = 'grid';
     
-    // Создаем карточки для каждого блюда в заказе
     Object.keys(currentOrder).forEach(category => {
         const dishKeyword = currentOrder[category];
         const dish = allDishes.find(d => d.keyword === dishKeyword);
@@ -54,7 +50,6 @@ function renderOrderItems() {
         }
     });
     
-    // Добавляем обработчики для кнопок удаления
     document.querySelectorAll('.remove-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const category = this.getAttribute('data-category');
@@ -66,13 +61,11 @@ function renderOrderItems() {
     });
 }
 
-// Обновление формы в правой колонке
 function updateOrderForm() {
     const orderCart = document.getElementById('order-cart');
     const nothingChosen = document.getElementById('nothing-chosen');
     let totalPrice = 0;
     
-    // Показываем/скрываем элементы в зависимости от наличия заказа
     if (Object.keys(currentOrder).length === 0) {
         orderCart.style.display = 'none';
         nothingChosen.style.display = 'block';
@@ -121,7 +114,6 @@ function updateOrderForm() {
         }
     ];
     
-    // Обновляем данные по каждой категории
     categories.forEach(cat => {
         const selectedElem = document.getElementById(cat.selected);
         const priceElem = document.getElementById(cat.price);
@@ -146,13 +138,11 @@ function updateOrderForm() {
         }
     });
     
-    // Обновляем итоговую стоимость
     const totalElem = document.getElementById('sum');
     totalElem.textContent = `${totalPrice} ₽`;
     totalElem.style.color = '#000';
 }
 
-// Проверка комбо по правилам ЛР6
 function isValidCombo() {
     const order = currentOrder;
     const hasSoup = !!order.soup;
@@ -160,12 +150,10 @@ function isValidCombo() {
     const hasSalad = !!order.salads;
     const hasDrink = !!order.drink;
 
-    // Должен быть выбран напиток
     if (!hasDrink) {
         return false;
     }
 
-    // Проверяем все возможные комбинации
     const combo1 = hasSoup && hasMain && hasSalad && hasDrink;     // суп, главное, салат, напиток
     const combo2 = hasSoup && hasMain && hasDrink && !hasSalad;    // суп, главное, напиток
     const combo3 = hasSoup && hasSalad && hasDrink && !hasMain;    // суп, салат, напиток
@@ -175,7 +163,6 @@ function isValidCombo() {
     return combo1 || combo2 || combo3 || combo4 || combo5;
 }
 
-// Создание уведомления
 function createNotification(text) {
     let notification = document.createElement("div");
     let button = document.createElement("button");
@@ -190,9 +177,8 @@ function createNotification(text) {
     document.body.append(notification);
 }
 
-// Отправка заказа на сервер
 async function submitOrder(formData) {
-    const apiKey = "ВАШ_API_KEY"; // Замените на ваш API ключ
+    const apiKey = "96326ceb-d317-435d-936d-68d3002346a4";
     const apiUrl = "https://edu.std-900.ist.mospolytech.ru/labs/api/orders";
     
     try {
@@ -217,26 +203,20 @@ async function submitOrder(formData) {
     }
 }
 
-// Инициализация страницы
 document.addEventListener('DOMContentLoaded', function() {
-    // Загружаем заказ из localStorage
     currentOrder = getCurrentOrder();
     
-    // Загружаем данные о блюдах
     loadOrderDishes().then(() => {
         renderOrderItems();
         updateOrderForm();
         
-        // Настраиваем форму
         const form = document.getElementById('order-form');
         const deliveryTimeInput = document.getElementById('delivery-time');
         const deliveryTypeRadios = document.querySelectorAll('input[name="delivery_type"]');
         
-        // Скрываем поле времени доставки по умолчанию
         deliveryTimeInput.disabled = true;
         deliveryTimeInput.required = false;
         
-        // Обработка переключения типа доставки
         deliveryTypeRadios.forEach(radio => {
             radio.addEventListener('change', function() {
                 if (this.value === 'now') {
@@ -250,27 +230,21 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         
-        // Обработка сброса формы
         document.getElementById('reset').addEventListener('click', function() {
-            // Только сбрасываем поля формы, не заказ
             setTimeout(() => {
-                // После сброса формы восстанавливаем сводку заказа
                 updateOrderForm();
             }, 100);
         });
         
-        // Обработка отправки формы
         if (form) {
             form.addEventListener('submit', async function(event) {
                 event.preventDefault();
                 
-                // Проверка комбо
                 if (!isValidCombo()) {
                     createNotification("Заказ не соответствует ни одному из доступных комбо. Пожалуйста, выберите блюда в соответствии с комбо.");
                     return;
                 }
                 
-                // Проверка времени доставки
                 if (form.delivery_type.value === 'by_time') {
                     const deliveryTime = form.delivery_time.value;
                     if (!deliveryTime) {
@@ -278,7 +252,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         return;
                     }
                     
-                    // Проверка времени
                     const time = new Date(`1970-01-01T${deliveryTime}:00`);
                     const minTime = new Date('1970-01-01T07:00:00');
                     const maxTime = new Date('1970-01-01T23:00:00');
@@ -296,7 +269,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
                 
-                // Подготовка данных формы
                 const formData = {
                     full_name: form.full_name.value,
                     email: form.email.value,
@@ -307,12 +279,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     comment: form.comment.value || ''
                 };
                 
-                // Добавляем время доставки, если выбрано "by_time"
                 if (form.delivery_type.value === 'by_time') {
                     formData.delivery_time = form.delivery_time.value;
                 }
                 
-                // Добавляем ID блюд, если они есть в заказе
                 if (currentOrder.soup) {
                     const dish = allDishes.find(d => d.keyword === currentOrder.soup);
                     if (dish) formData.soup_id = dish.id;
@@ -334,19 +304,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (dish) formData.dessert_id = dish.id;
                 }
                 
-                // Удаляем пустые поля
                 Object.keys(formData).forEach(key => {
                     if (formData[key] === null || formData[key] === '' || formData[key] === undefined) {
                         delete formData[key];
                     }
                 });
                 
-                // Отправка на сервер
                 try {
                     const result = await submitOrder(formData);
                     createNotification("Заказ успешно оформлен!");
                     
-                    // Очищаем localStorage после успешной отправки
                     clearOrder();
                     currentOrder = {};
                     renderOrderItems();

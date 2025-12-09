@@ -27,7 +27,6 @@ function renderDishes() {
         
         const currentOrder = getCurrentOrder();
         
-        // Очищаем сетку перед добавлением
         grid.innerHTML = '';
         
         dishes
@@ -40,13 +39,11 @@ function renderDishes() {
                 div.dataset.dish = dish.keyword;
                 div.dataset.kind = dish.kind;
                 
-                // Проверяем, выбрано ли это блюдо в текущем заказе
                 const isSelected = isInOrder(mapCategory(dish.category), dish.keyword);
                 if (isSelected) {
                     div.classList.add('selected');
                 }
                 
-                // Всегда показываем "Добавить" на странице "Собрать ланч"
                 div.innerHTML = `
                     <img src="${dish.image}" alt="${dish.name}">
                     <p class="price">${dish.price}₽</p>

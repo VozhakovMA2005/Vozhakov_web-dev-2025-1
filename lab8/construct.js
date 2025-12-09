@@ -1,31 +1,25 @@
 "use strict";
 
-// Инициализация страницы "Собрать ланч"
 function initConstructPage() {
     const categories = ["soup", "main", "drink", "salads", "desserts"];
     const stickyPanel = document.getElementById("sticky-order-panel");
     const currentOrderTotal = document.getElementById("current-order-total");
     const goToOrderBtn = document.getElementById("go-to-order-btn");
     
-    // Загружаем текущий заказ
     let currentOrder = getCurrentOrder();
     
-    // Функция обновления отображения
     function updateDisplay() {
         let sum = 0;
         
-        // Обновляем выделение карточек и подсчитываем сумму
         categories.forEach(category => {
             const dishKeyword = currentOrder[category];
             if (dishKeyword) {
-                // Находим карточку блюда и выделяем ее
                 const cards = document.querySelectorAll(`.meal-map[data-category="${category}"]`);
                 cards.forEach(card => {
                     if (card.dataset.dish === dishKeyword) {
                         card.classList.add('selected');
                         const button = card.querySelector('button');
                         
-                        // Находим блюдо для подсчета суммы
                         const dish = window.dishes.find(d => d.keyword === dishKeyword);
                         if (dish) {
                             sum += dish.price;
@@ -39,7 +33,6 @@ function initConstructPage() {
                     }
                 });
             } else {
-                // Снимаем выделение со всех карточек этой категории
                 const cards = document.querySelectorAll(`.meal-map[data-category="${category}"]`);
                 cards.forEach(card => {
                     card.classList.remove('selected');
@@ -48,18 +41,16 @@ function initConstructPage() {
             }
         });
         
-        // Обновляем sticky-панель
         if (Object.keys(currentOrder).length > 0) {
             stickyPanel.style.display = 'block';
             currentOrderTotal.textContent = `${sum} ₽`;
-            currentOrderTotal.style.color = '#000'; // Черный цвет
+            currentOrderTotal.style.color = '#000';
             
-            // Проверяем валидность комбо для активации кнопки
             if (checkComboValidity()) {
                 goToOrderBtn.classList.remove('disabled');
                 goToOrderBtn.style.pointerEvents = 'auto';
                 goToOrderBtn.style.opacity = '1';
-                goToOrderBtn.style.backgroundColor = '#000'; // Черный цвет
+                goToOrderBtn.style.backgroundColor = '#000';
                 goToOrderBtn.style.color = 'white';
             } else {
                 goToOrderBtn.classList.add('disabled');
@@ -73,7 +64,6 @@ function initConstructPage() {
         }
     }
     
-    // Инициализация обработчиков для кнопок "Добавить"
     document.addEventListener('click', function(e) {
         if (e.target.closest('.meal-map button')) {
             const btn = e.target.closest('.meal-map button');
@@ -81,23 +71,19 @@ function initConstructPage() {
             const dishKeyword = div.dataset.dish;
             const category = div.dataset.category;
             
-            // Находим объект блюда
             const dish = window.dishes.find(function(x) { 
                 return x.keyword === dishKeyword; 
             });
             
             if (!dish) return;
             
-            // Проверяем, не выбрано ли уже блюдо этой категории
             const currentDish = currentOrder[category];
             
             if (currentDish === dishKeyword) {
-                // Если уже выбрано, убираем выделение и удаляем из заказа
                 div.classList.remove("selected");
                 currentOrder = removeFromOrder(category);
                 btn.textContent = 'Добавить';
             } else {
-                // Снимаем выделение с предыдущего блюда этой категории
                 if (currentDish) {
                     const prevCard = document.querySelector(
                         `.meal-map[data-category="${category}"][data-dish="${currentDish}"]`
@@ -111,7 +97,6 @@ function initConstructPage() {
                     }
                 }
                 
-                // Добавляем новое блюдо
                 div.classList.add("selected");
                 currentOrder = addToOrder(category, dish);
             }
@@ -120,11 +105,9 @@ function initConstructPage() {
         }
     });
     
-    // Инициализация при загрузке страницы
     updateDisplay();
 }
 
-// Запускаем инициализацию после загрузки DOM и блюд
 document.addEventListener("DOMContentLoaded", function () {
     if (typeof loadDishes === 'function') {
         loadDishes().then(function () {

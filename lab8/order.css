@@ -1,6 +1,3 @@
-/* Стили для страницы оформления заказа */
-
-/* Основной контейнер */
 .order-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -10,7 +7,6 @@
     gap: 40px;
 }
 
-/* Левая колонка: Состав заказа */
 #selected-dishes {
     margin-bottom: 40px;
 }
@@ -266,7 +262,6 @@
     background-color: rgb(190, 193, 199);
 }
 
-/* Адаптивность */
 @media (max-width: 900px) {
     .order-container {
         grid-template-columns: 1fr;

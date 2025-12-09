@@ -175,16 +175,12 @@ footer a:hover {
   }
 }
 
-/* Добавить в конец style.css */
-
-/* Основной контейнер для страницы оформления */
 main {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
 }
 
-/* Уведомления */
 .notification {
     position: fixed;
     top: 50%;

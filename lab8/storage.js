@@ -2,23 +2,19 @@
 
 const ORDER_STORAGE_KEY = 'foodConstructOrder';
 
-// Получить текущий заказ из localStorage
 function getCurrentOrder() {
     const savedOrder = localStorage.getItem(ORDER_STORAGE_KEY);
     return savedOrder ? JSON.parse(savedOrder) : {};
 }
 
-// Сохранить заказ в localStorage
 function saveOrder(order) {
     localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(order));
 }
 
-// Очистить заказ
 function clearOrder() {
     localStorage.removeItem(ORDER_STORAGE_KEY);
 }
 
-// Добавить блюдо в заказ
 function addToOrder(category, dish) {
     const order = getCurrentOrder();
     order[category] = dish.keyword;
@@ -26,7 +22,6 @@ function addToOrder(category, dish) {
     return order;
 }
 
-// Удалить блюдо из заказа
 function removeFromOrder(category) {
     const order = getCurrentOrder();
     delete order[category];
@@ -34,13 +29,11 @@ function removeFromOrder(category) {
     return order;
 }
 
-// Проверить, есть ли блюдо в заказе
 function isInOrder(category, dishKeyword) {
     const order = getCurrentOrder();
     return order[category] === dishKeyword;
 }
 
-// Получить общую стоимость заказа
 function getOrderTotalPrice(allDishes) {
     const order = getCurrentOrder();
     let total = 0;
@@ -55,7 +48,6 @@ function getOrderTotalPrice(allDishes) {
     return total;
 }
 
-// Проверка валидности комбо
 function checkComboValidity() {
     const order = getCurrentOrder();
     const hasSoup = !!order.soup;
@@ -63,12 +55,10 @@ function checkComboValidity() {
     const hasSalad = !!order.salads;
     const hasDrink = !!order.drink;
 
-    // Должен быть выбран напиток
     if (!hasDrink) {
         return false;
     }
 
-    // Проверяем все возможные комбинации
     const combo1 = hasSoup && hasMain && hasSalad && hasDrink;     // суп, главное, салат, напиток
     const combo2 = hasSoup && hasMain && hasDrink && !hasSalad;    // суп, главное, напиток
     const combo3 = hasSoup && hasSalad && hasDrink && !hasMain;    // суп, салат, напиток
