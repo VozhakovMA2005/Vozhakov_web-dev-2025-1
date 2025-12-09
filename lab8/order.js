@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
             form.addEventListener('submit', async function(event) {
                 event.preventDefault();
                 
-                // Проверка комбо (требование ЛР)
+                // Проверка комбо 
                 if (!isValidCombo()) {
                     createNotification("Заказ не соответствует ни одному из доступных комбо. Пожалуйста, выберите блюда в соответствии с комбо.");
                     return;
@@ -295,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Успешное оформление
                     createNotification(`Заказ №${result.id} успешно оформлен!`);
                     
-                    // Очищаем localStorage после успешной отправки (требование ЛР)
+                    // Очищаем localStorage после успешной отправки
                     clearOrder();
                     currentOrder = {};
                     renderOrderItems();
@@ -306,15 +306,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (form && typeof form.reset === 'function') {
                             form.reset();
                         } else if (this && typeof this.reset === 'function') {
-                            this.reset(); // Используем контекст обработчика
+                            this.reset();
                         }
                     } catch (resetError) {
                         console.warn('Не удалось сбросить форму:', resetError);
-                        // Игнорируем ошибку сброса формы, так как заказ уже успешно отправлен
                     }
                     
                 } catch (error) {
-                    // Ошибка оформления (требование ЛР - показываем уведомление)
                     createNotification(`Ошибка оформления заказа: ${error.message}`);
                 }
             });
