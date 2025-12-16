@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,15 +14,14 @@
 </head>
 
 <body>
-
     <header id="navigator">
         <div class="header_center">
             <h1>Food Construct</h1>
             <nav>
                 <a href="index.html">О нас</a>
                 <a href="construct.html" class="active">Собрать ланч</a>
-                <a href="designorder.html">Оформить заказ</a>
-                <a href="order.html">Заказы</a>
+                <a href="order.html">Оформить заказ</a>
+                <a href="orders.html">Заказы</a>
                 <a href="#contacts">Контакты</a>
             </nav>
         </div>
@@ -51,11 +49,11 @@
                 </div>
             </div>
             <div class="combo">
-                <div class="combo-dish">
+                <div  class="combo-dish">
                     <img src="image/soup.png" class="combo-image">
                     <span class="combo-text">Суп</span>
                 </div>
-                <div class="combo-dish">
+                <div  class="combo-dish">
                     <img src="image/main.png" class="combo-image">
                     <span class="combo-text">Главное блюдо</span>
                 </div>
@@ -65,7 +63,7 @@
                 </div>
             </div>
             <div class="combo">
-                <div class="combo-dish">
+                <div  class="combo-dish">
                     <img src="image/soup.png" class="combo-image">
                     <span class="combo-text">Суп</span>
                 </div>
@@ -83,17 +81,17 @@
                     <img src="image/main.png" class="combo-image">
                     <span class="combo-text">Главное блюдо</span>
                 </div>
-                <div class="combo-dish">
+                <div  class="combo-dish">
                     <img src="image/salad.png" class="combo-image">
                     <span class="combo-text">Салат</span>
                 </div>
-                <div class="combo-dish">
+                <div  class="combo-dish">
                     <img src="image/drink.png" class="combo-image">
                     <span class="combo-text">Напиток</span>
                 </div>
             </div>
             <div class="combo">
-                <div class="combo-dish">
+                <div  class="combo-dish">
                     <img src="image/main.png" class="combo-image">
                     <span class="combo-text">Главное блюдо</span>
                 </div>
@@ -108,7 +106,7 @@
                     <span class="combo-text">Десерт</span>
                     <span class="undertext">(Можно добавить к любому заказу)</span>
                 </div>
-            </div>
+            </div> 
         </section>
 
         <div class="main_center">
@@ -166,12 +164,20 @@
                 <div class="meals-grid" id="desserts_grid"></div>
             </section>
         </div>
-
-        <div id="sticky-sum">
-            <span class="sum"></span>
-            <a href="designorder.html">Перейти к оформлению</a>
-        </div>
     </main>
+
+    <!-- Sticky панель для перехода к оформлению -->
+    <div id="sticky-order-panel">
+        <div class="sticky-content">
+            <div class="order-summary">
+                <span class="total-label">Стоимость заказа:</span>
+                <span id="current-order-total" class="total-price">0 ₽</span>
+            </div>
+            <a href="order.html" id="go-to-order-btn" class="order-btn disabled">
+                Перейти к оформлению
+            </a>
+        </div>
+    </div>
 
     <footer id="contacts">
         <div class="footer_center">
@@ -179,11 +185,10 @@
         </div>
     </footer>
 
+    <script src="loadDishes.js"></script>
     <script src="render.js"></script>
-    <script src="addToOrder.js"></script>
+    <script src="storage.js"></script>
+    <script src="construct.js"></script>
     <script src="filter.js"></script>
-    <script src="checkOrder.js"></script>
-
 </body>
-
 </html>
