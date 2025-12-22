@@ -1,0 +1,565 @@
+/* Для страницы заказов */
+.orders-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.orders-section h2 {
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 32px;
+    color: #000;
+}
+
+/* Состояния загрузки */
+.loading,
+.empty-state,
+.error-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.loading p {
+    font-size: 18px;
+    color: #666;
+}
+
+.empty-state p {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.error-state p {
+    font-size: 18px;
+    color: #d32f2f;
+    margin-bottom: 20px;
+}
+
+/* Кнопки */
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    border: none;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+.btn-primary {
+    background-color: #ddd;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #000000;
+}
+
+.btn-secondary {
+    background-color: #f1f1f1;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.btn-secondary:hover {
+    background-color: #e0e0e0;
+}
+
+.btn-danger {
+    background-color: #d32f2f;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #b71c1c;
+}
+
+/* Таблица заказов */
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: 1px solid #e0e0e0;
+}
+
+.orders-table th {
+    background-color: #f8f9fa;
+    padding: 16px;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 2px solid #e0e0e0;
+    color: #000;
+}
+
+.orders-table td {
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #000;
+    vertical-align: top;
+}
+
+.orders-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.orders-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* "Состав заказа" */
+.order-items {
+    max-width: 300px;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    line-height: 1.4 !important;
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+    min-height: 60px !important;
+}
+
+.orders-table tbody tr {
+    height: auto !important;
+    min-height: 60px !important;
+}
+
+.orders-table tbody tr td {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+    border: none;
+}
+
+.order-number {
+    font-weight: bold;
+    color: #000000;
+}
+
+.order-date {
+    white-space: nowrap;
+}
+
+.order-total {
+    font-weight: bold;
+}
+
+.order-delivery-time {
+    white-space: nowrap;
+}
+
+.order-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-start;
+}
+
+#edit-comment {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    min-height: 80px !important;
+}
+
+.action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.action-btn:hover {
+    background-color: #f1f1f1;
+}
+
+.action-btn.view {
+    color: #000000;
+}
+
+.action-btn.edit {
+    color: #000000;
+}
+
+.action-btn.delete {
+    color: #000000;
+}
+
+/* Модальные окна */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 0;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    color: #000;
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: bold;
+    color: #000;
+}
+
+.close-modal {
+    font-size: 28px;
+    font-weight: bold;
+    color: #666;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close-modal:hover {
+    color: #000;
+}
+
+.modal-body {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.modal-body p {
+    text-align: center;
+    font-size: 16px;
+    margin: 20px 0;
+}
+
+.modal-footer {
+    padding: 20px;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Стили для модальных окон с разными размерами текста */
+.modal-body h4 {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #000 !important;
+    margin: 20px 0 10px !important;
+}
+
+.modal-body .regular-text {
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    color: #000 !important;
+}
+
+/* "Дата оформления" в модальном окне */
+.date-section {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.date-section h4,
+.date-section strong {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #000 !important;
+    display: inline !important;
+}
+
+.date-section span {
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    color: #000 !important;
+    margin-left: 10px !important;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+    padding-bottom: 40px;
+}
+
+footer {
+    flex-shrink: 0;
+    background-color: black;
+    color: white;
+    width: 100%;
+    padding: 2rem;
+    font-size: 2rem;
+    margin-top: auto;
+}
+
+.no-border-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.no-border-table tr {
+    border: none;
+}
+
+.no-border-table td {
+    padding: 8px 0;
+    border: none;
+    vertical-align: top;
+}
+
+.no-border-table td:first-child {
+    width: 180px;
+    color: #000;
+    font-weight: 500 !important;
+}
+
+.no-border-table td:last-child {
+    color: #000;
+    text-align: right !important;
+}
+
+.no-border-table input[type="text"],
+.no-border-table input[type="email"],
+.no-border-table input[type="tel"],
+.no-border-table input[type="time"] {
+    width: 100% !important;
+    text-align: left !important;
+    padding: 8px 12px !important;
+    border: 1px solid #ddd !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    color: #000 !important;
+    background: white !important;
+}
+
+.full-width {
+    width: 100% !important;
+    text-align: left !important;
+    font-size: 14px !important;
+    padding: 8px 12px !important;
+    box-sizing: border-box !important;
+    min-height: 80px !important;
+}
+
+.radio-group {
+    text-align: left !important;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.radio-group label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    cursor: pointer;
+    font-size: 14px !important;
+    color: #000 !important;
+}
+
+.radio-group input[type="radio"] {
+    margin-right: 8px;
+}
+
+#edit-order-modal .modal-header h3 {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    color: #000 !important;
+}
+
+#edit-order-modal h4 {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #000 !important;
+    margin: 15px 0 8px !important;
+}
+
+.modal-body,
+.modal-body p,
+.modal-body span:not(.close-modal),
+.modal-body td,
+.modal-body li {
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    color: #000 !important;
+}
+
+.modal-body strong {
+    font-weight: 700 !important;
+}
+
+.order-items-table td:first-child {
+    font-weight: 500 !important;
+    color: #000 !important;
+}
+
+.order-items-table td:last-child {
+    font-weight: 400 !important;
+    color: #000 !important;
+}
+
+.comment {
+    text-align: left !important;
+    margin: 10px 0 !important;
+    padding: 10px !important;
+    background-color: #f9f9f9 !important;
+    border-radius: 4px !important;
+    color: #000 !important;
+}
+
+.order-view hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 20px 0;
+}
+
+.order-view .total {
+    font-weight: bold;
+    text-align: right;
+    font-size: 16px;
+    color: #000;
+    margin-top: 10px;
+}
+
+.order-section {
+    margin-bottom: 20px;
+}
+
+.order-section p {
+    margin: 5px 0;
+    color: #000;
+}
+
+/* Уведомления */
+.notification-overlay {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    z-index: 2000;
+    animation: slideIn 0.3s ease;
+    max-width: 400px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.notification-overlay.success {
+    background-color: #4caf50;
+}
+
+.notification-overlay.error {
+    background-color: #f44336;
+}
+
+.notification-overlay.info {
+    background-color: #2196f3;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .order-items {
+        min-height: 70px !important;
+        font-size: 13px !important;
+        max-width: 200px;
+    }
+    
+    .orders-table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .orders-table th,
+    .orders-table td {
+        padding: 10px 6px !important;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+
+    .modal-body {
+        padding: 15px;
+    }
+
+    .no-border-table td:first-child {
+        width: 140px;
+    }
+}
+
+@media (max-width: 480px) {
+    .orders-section {
+        padding: 20px 10px;
+    }
+
+    .order-items {
+        min-height: 80px !important;
+        font-size: 12px !important;
+        max-width: 150px;
+    }
+
+    .modal-body {
+        max-height: 80vh;
+    }
+
+    .order-actions {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .action-btn {
+        width: 32px;
+        height: 32px;
+    }
+}

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оформить заказ</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="construct.css">
+    <link rel="stylesheet" href="order.css">
+</head>
+
+<body>
+    <header id="navigator">
+        <div class="header_center">
+            <h1>Food Construct</h1>
+            <nav>
+                <a href="index.html">О нас</a>
+                <a href="construct.html">Собрать ланч</a>
+                <a href="order.html" class="active">Оформить заказ</a>
+                <a href="orders.html">Заказы</a>
+                <a href="#footer">Контакты</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main>
+        <section>
+            <div id="selected-dishes">
+                <h2>Состав заказа</h2>
+                <div id="order-items-container" class="grid">
+                    <!-- тут будут карточки -->
+                </div>
+                <div id="empty-order-message" class="empty-message">
+                    <p>Ничего не выбрано. Чтобы добавить блюда в заказ, перейдите на страницу <a href="construct.html">Собрать ланч</a>.</p>
+                </div>
+            </div>
+            
+            <section class="order-block">
+                <h2>Сделать заказ</h2>
+                <form id="order-form" class="order-form" action="" method="post">
+                    <div class="order-items">
+                        <h3>Ваш заказ</h3>
+                        <div id="order-cart">
+                            <div class="order-cart-item">
+                                <div class="order-cart-label">Суп</div>
+                                <div class="order-cart-info">
+                                    <span id="soup-selected">Суп не выбран</span>
+                                    <span id="soup-price">0 ₽</span>
+                                </div>
+                            </div>
+                            
+                            <div class="order-cart-item">
+                                <div class="order-cart-label">Главное блюдо</div>
+                                <div class="order-cart-info">
+                                    <span id="main-course-selected">Блюдо не выбрано</span>
+                                    <span id="main-course-price">0 ₽</span>
+                                </div>
+                            </div>
+                            
+                            <div class="order-cart-item">
+                                <div class="order-cart-label">Салат/стартер</div>
+                                <div class="order-cart-info">
+                                    <span id="salad-selected">Блюдо не выбрано</span>
+                                    <span id="salad-price">0 ₽</span>
+                                </div>
+                            </div>
+                            
+                            <div class="order-cart-item">
+                                <div class="order-cart-label">Напиток</div>
+                                <div class="order-cart-info">
+                                    <span id="drink-selected">Напиток не выбран</span>
+                                    <span id="drink-price">0 ₽</span>
+                                </div>
+                            </div>
+                            
+                            <div class="order-cart-item">
+                                <div class="order-cart-label">Десерт</div>
+                                <div class="order-cart-info">
+                                    <span id="dessert-selected">Десерт не выбран</span>
+                                    <span id="dessert-price">0 ₽</span>
+                                </div>
+                            </div>
+                            
+                            <div class="total">
+                                <div class="order-cart-label">Стоимость заказа</div>
+                                <div class="order-cart-info">
+                                    <span id="sum">0 ₽</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <p id="nothing-chosen">Ничего не выбрано</p>
+                        
+                        <label for="comment-textarea">Комментарий к заказу</label>
+                        <textarea name="comment" id="comment-textarea"></textarea>
+                        
+                        <!-- Скрытые поля для ID блюд -->
+                        <input type="hidden" name="soup_id" id="soup-select">
+                        <input type="hidden" name="main_course_id" id="main-course-select">
+                        <input type="hidden" name="salad_id" id="salad-select">
+                        <input type="hidden" name="drink_id" id="drink-select">
+                        <input type="hidden" name="dessert_id" id="dessert-select">
+                    </div>
+                    
+                    <div class="order-info">
+                        <h3>Ваши данные</h3>
+                        
+                        <label for="name-input">Имя</label>
+                        <input name="full_name" id="name-input" type="text" required>
+                        
+                        <label for="email-input">Email</label>
+                        <input name="email" id="email-input" type="email" required>
+                        
+                        <label for="get-info-checkbox">
+                            <input name="subscribe" id="get-info-checkbox" type="checkbox" value="1" checked>
+                            Получать информацию о скидках и акциях
+                        </label>
+                        
+                        <label for="tel-input">Номер телефона</label>
+                        <input name="phone" id="tel-input" type="tel" required>
+                        
+                        <label for="address-input">Адрес доставки</label>
+                        <input name="delivery_address" id="address-input" type="text" required>
+                        <span class="note">Доставка осуществляется только по Москве</span>
+                        
+                        <fieldset>
+                            <legend>Время доставки:</legend>
+                            <label for="delivery-time-option-radio-now">
+                                <input name="delivery_type" id="delivery-time-option-radio-now" value="now" type="radio" required checked>
+                                Как можно скорее
+                            </label>
+                            <label for="delivery-time-option-radio-later">
+                                <input name="delivery_type" id="delivery-time-option-radio-later" value="by_time" type="radio" required>
+                                К указанному времени
+                            </label>
+                        </fieldset>
+                        
+                        <label for="delivery-time">Укажите время доставки</label>
+                        <input name="delivery_time" type="time" id="delivery-time" min="07:00" max="23:00" step="300">
+                        <span class="note">Доступное время доставки с 7:00 до 23:00</span>
+                        
+                        <div class="order-buttons">
+                            <button type="reset" id="reset">Сбросить</button>
+                            <button type="submit" id="submit">Отправить</button>
+                        </div>
+                    </div>
+                </form>
+            </section>
+        </section>
+    </main>
+    
+    <footer id="footer">
+        <div class="footer_center">
+            <p>Позвоните нам <a href="tel:+74950000000">+7 (495) 000-00-00</a></p>
+        </div>
+    </footer>
+
+    <script src="storage.js"></script>
+    <script src="order.js"></script>
+</body>
+</html>
