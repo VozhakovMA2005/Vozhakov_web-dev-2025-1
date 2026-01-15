@@ -7,6 +7,7 @@ let filteredGoods = [];
 let displayedCount = 0;
 const perPage = 9;
 
+//Для того, чтобы красиво отображалось, заранее были запрошены с сервера все возможные категории. Но показываются они динамически
 const categoryMap = {
     "beauty & health": "Красота и здоровье",
     "home & kitchen": "Дом и кухня",
@@ -15,12 +16,12 @@ const categoryMap = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    fetchGoods();
+    productRequest();
     setupSearch();
     updateCartBadge();
 });
 
-async function fetchGoods() {
+async function productRequest() {
     try {
         const response = await fetch(`${API_URL}?api_key=${API_KEY}`);
         allGoods = await response.json();
