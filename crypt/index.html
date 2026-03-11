@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -49,7 +50,7 @@
             border: var(--border-black);
         }
 
-        .btn-check:checked + .btn-custom {
+        .btn-check:checked+.btn-custom {
             background-color: var(--primary-yellow);
             color: black;
             font-weight: 700;
@@ -77,11 +78,23 @@
             border-radius: 0;
             padding: 10px;
         }
-        
+
         .form-control-custom:focus {
             box-shadow: none;
             border-color: #000;
             background-color: #fffae6;
+        }
+
+        /* Стили для опций Шеннона */
+        #shenonOptions {
+            background: rgba(0, 0, 0, 0.02);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        #shenonOptions .row {
+            margin-top: 10px;
         }
 
         .form-select-custom {
@@ -140,107 +153,183 @@
             border-color: #000;
             background-color: #fffae6;
         }
-        /* Убираем стрелочки у input type="number" */
+
         .matrix-input::-webkit-outer-spin-button,
         .matrix-input::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
+
+        .cardano-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 35px);
+
+            gap: 2px;
+            margin-bottom: 15px;
+            justify-content: start;
+        }
+
+        .cardano-cell {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #999;
+            background-color: #fff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .cardano-cell:hover {
+            background-color: #f0f0f0;
+        }
+
+        .cardano-cell.selected {
+            background-color: var(--primary-yellow);
+            border: var(--border-black);
+        }
     </style>
 </head>
+
 <body>
 
-<div class="main-container">
-    <h3 class="header-title">Шифрование</h3>
+    <div class="main-container">
+        <h3 class="header-title">Шифрование</h3>
 
-    <div class="padding-box">
-        <div class="mb-4">
-            <div class="section-label">Режим работы</div>
-            <div class="btn-group-custom">
-                <input type="radio" class="btn-check" name="workMode" id="modeTest" value="test" checked>
-                <label class="btn-custom" for="modeTest">Тестовый</label>
-
-                <input type="radio" class="btn-check" name="workMode" id="modeText" value="text">
-                <label class="btn-custom" for="modeText">Текстовый</label>
-            </div>
-        </div>
-
-        <div class="row mb-4">
-            <div class="col-md-5">
-                <div class="section-label">Алгоритм</div>
-                <select class="form-select form-select-custom" id="algorithmSelect">
-                    <option value="caesar">ЦЕЗАРЬ</option>
-                    <option value="atbash">АТБАШ</option>
-                    <option value="polybius">ПОЛИБИЯ</option>
-                    <option value="tritemiy">ТРИТЕМИЯ</option>
-                    <option value="belazo">БЕЛАЗО</option>
-                    <option value="vizhener">ВИЖИНЕРА</option>
-                    <option value="magmat">МАГМА</option>
-                    <option value="matrix">МАТРИЧНЫЙ</option>
-                    <option value="playfer">ПЛЭЙФЕР</option>
-                </select>
-            </div>
-
-            <div id="vizhenerOptions" class="mt-3" style="display: none;">
-                <div class="section-label">Тип Вижинера</div>
+        <div class="padding-box">
+            <div class="mb-4">
+                <div class="section-label">Режим работы</div>
                 <div class="btn-group-custom">
-                    <input type="radio" class="btn-check" name="vizhType" id="vizhSM" value="sm" checked>
-                    <label class="btn-custom" for="vizhSM">Самоключ</label>
-                
-                    <input type="radio" class="btn-check" name="vizhType" id="vizhST" value="st">
-                    <label class="btn-custom" for="vizhST">Ключ-ШТ</label>
+                    <input type="radio" class="btn-check" name="workMode" id="modeTest" value="test" checked>
+                    <label class="btn-custom" for="modeTest">Тестовый</label>
+
+                    <input type="radio" class="btn-check" name="workMode" id="modeText" value="text">
+                    <label class="btn-custom" for="modeText">Текстовый</label>
                 </div>
             </div>
 
-            <div id="matrixOptions" class="mt-3" style="display: none;">
-                <div class="section-label">Размер матрицы</div>
-                <select class="form-select form-select-custom mb-3" id="matrixSizeSelect">
-                    <option value="3" selected>3x3</option>
-                    <option value="4">4x4</option>
-                    <option value="5">5x5</option>
-                </select>
+            <div class="row mb-4">
+                <div class="col-md-5">
+                    <div class="section-label">Алгоритм</div>
+                    <select class="form-select form-select-custom" id="algorithmSelect">
+                        <option value="caesar">ЦЕЗАРЬ</option>
+                        <option value="atbash">АТБАШ</option>
+                        <option value="polybius">ПОЛИБИЯ</option>
+                        <option value="tritemiy">ТРИТЕМИЯ</option>
+                        <option value="belazo">БЕЛАЗО</option>
+                        <option value="vizhener">ВИЖИНЕРА</option>
+                        <option value="magmat">МАГМА (t)</option>
+                        <option value="matrix">МАТРИЧНЫЙ</option>
+                        <option value="playfer">ПЛЭЙФЕР</option>
+                        <option value="vertical">ВЕРТИКАЛЬНАЯ</option>
+                        <option value="cardano">КАРДАНО</option>
+                        <option value="phestel">СЕТЬ ФЕЙСТЕЛЯ</option>
+                        <option value="shenonGamma">Шеннон (гаммирование)</option>
+                        <option value="magmaGamma">Магма (гаммирование)</option>
+                    </select>
+                </div>
 
-                <div class="section-label">Элементы матрицы</div>
-                <div id="matrixGridContainer">
+                <div id="vizhenerOptions" class="mt-3" style="display: none;">
+                    <div class="section-label">Тип Вижинера</div>
+                    <div class="btn-group-custom">
+                        <input type="radio" class="btn-check" name="vizhType" id="vizhSM" value="sm" checked>
+                        <label class="btn-custom" for="vizhSM">Самоключ</label>
+
+                        <input type="radio" class="btn-check" name="vizhType" id="vizhST" value="st">
+                        <label class="btn-custom" for="vizhST">Ключ-ШТ</label>
                     </div>
-            </div>
+                </div>
 
-            <div class="col-md-7">
-                <div class="section-label">Операция</div>
-                <div class="btn-group-custom">
-                    <input type="radio" class="btn-check" name="operation" id="opEncrypt" value="encrypt" checked>
-                    <label class="btn-custom" for="opEncrypt">Шифрование</label>
+                <div id="magmaOptions" class="mt-3" style="display: none;">
+                    <div class="section-label">Параметры Магма (Гаммирование)</div>
+                    <div class="mb-2">
+                        <div class="section-label">Синхропосылка</div>
+                        <input type="text" class="form-control form-control-custom" id="magmaSyncInput"
+                            placeholder="Например: 12345678" maxlength="16">
+                        <div class="helper-text">Синхропосылка (IV) обязательна для режима гаммирования.</div>
+                    </div>
+                </div>
 
-                    <input type="radio" class="btn-check" name="operation" id="opDecrypt" value="decrypt">
-                    <label class="btn-custom" for="opDecrypt">Расшифрование</label>
+                <div id="matrixOptions" class="mt-3" style="display: none;">
+                    <div class="section-label">Размер матрицы</div>
+                    <select class="form-select form-select-custom mb-3" id="matrixSizeSelect">
+                        <option value="3" selected>3x3</option>
+                        <option value="4">4x4</option>
+                        <option value="5">5x5</option>
+                    </select>
+
+                    <div class="section-label">Элементы матрицы</div>
+                    <div id="matrixGridContainer">
+                    </div>
+                </div>
+
+                <div id="cardanoOptions" class="mt-3" style="display: none;">
+                    <div class="section-label">Решетка Кардано</div>
+                    <div class="helper-text mb-2">Выберите ровно 15 клеток: <span id="cardanoCount">0</span>/15</div>
+                    <div id="cardanoGridContainer">
+                    </div>
+                </div>
+                <div id="shenonOptions" class="mt-3" style="display: none;">
+                    <div class="section-label">Параметры шифра Шеннона</div>
+                    <div class="mb-3">
+                        <div class="section-label">Режим шифрования</div>
+                        <div class="btn-group-custom">
+                            <input type="radio" class="btn-check" name="shenonMode" id="shenonBits" value="bits"
+                                checked>
+                            <label class="btn-custom" for="shenonBits">Побитовый</label>
+
+                            <input type="radio" class="btn-check" name="shenonMode" id="shenonChars" value="chars">
+                            <label class="btn-custom" for="shenonChars">Посимвольный</label>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <div class="section-label">Константа a</div>
+                            <input type="number" class="form-control form-control-custom" id="shenonConstA"
+                                placeholder="Введите a" step="1" min="1">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <div class="section-label">Константа c</div>
+                            <input type="number" class="form-control form-control-custom" id="shenonConstC"
+                                placeholder="Введите c" step="1" min="1">
+                        </div>
+                    </div>
+                    <div class="helper-text" id="shenonValidationMsg" style="color: #dc3545;"></div>
+                </div>
+                <div class="col-md-7">
+                    <div class="section-label">Операция</div>
+                    <div class="btn-group-custom">
+                        <input type="radio" class="btn-check" name="operation" id="opEncrypt" value="encrypt" checked>
+                        <label class="btn-custom" for="opEncrypt">Шифрование</label>
+
+                        <input type="radio" class="btn-check" name="operation" id="opDecrypt" value="decrypt">
+                        <label class="btn-custom" for="opDecrypt">Расшифрование</label>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="mb-4" id="keyContainer">
-            <div class="section-label">Ключ</div>
-            <input type="text" 
-                   class="form-control form-control-custom" 
-                   id="keyInput" 
-                   placeholder="Введите число или слово"
-                   autocomplete="off">
-            <div class="helper-text">Введите число или текст.</div>
-        </div>
+            <div class="mb-4" id="keyContainer">
+                <div class="section-label">Ключ</div>
+                <input type="text" class="form-control form-control-custom" id="keyInput"
+                    placeholder="Введите число или слово" autocomplete="off">
+                <div class="helper-text">Введите число или текст.</div>
+            </div>
 
-        <div class="mb-3">
-            <div class="section-label">Ввод данных</div>
-            <textarea class="form-control form-control-custom" id="inputText" rows="4" placeholder="Введите текст..."></textarea>
-        </div>
+            <div class="mb-3">
+                <div class="section-label">Ввод данных</div>
+                <textarea class="form-control form-control-custom" id="inputText" rows="4"
+                    placeholder="Введите текст..."></textarea>
+            </div>
 
-        <button class="btn btn-action" id="executeBtn">Выполнить операцию</button>
+            <button class="btn btn-action" id="executeBtn">Выполнить операцию</button>
 
-        <div class="mt-4">
-            <div class="section-label">Результат</div>
-            <textarea class="form-control form-control-custom" id="outputText" rows="4" readonly></textarea>
+            <div class="mt-4">
+                <div class="section-label">Результат</div>
+                <textarea class="form-control form-control-custom" id="outputText" rows="4" readonly></textarea>
+            </div>
         </div>
     </div>
-</div>
 
-<script src="1_unambiguous_replacement.js"></script>
+    <script src="1_unambiguous_replacement.js"></script>
 </body>
+
 </html>
