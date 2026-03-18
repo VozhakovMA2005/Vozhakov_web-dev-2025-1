@@ -87,9 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const cardanoOptions = document.getElementById('cardanoOptions');
         const shenonOptions = document.getElementById('shenonOptions');
         const magmaOptions = document.getElementById('magmaOptions');
+        const a51Options = document.getElementById('a51Options');
+        const a52Options = document.getElementById('a52Options');
 
         // Логика блокировки ключа
-        if (algo === 'atbash' || algo === 'polybius' || algo === 'tritemiy' || algo === 'magmat' || algo === 'cardano') {
+        if (algo === 'atbash' || algo === 'polybius' || algo === 'a52' || algo === 'tritemiy' || algo === 'magmat' || algo === 'cardano' || algo === 'a51') {
             keyContainer.style.opacity = '0.5';
             document.getElementById('keyInput').disabled = true;
         } else {
@@ -101,6 +103,19 @@ document.addEventListener('DOMContentLoaded', () => {
             magmaOptions.style.display = 'block';
         } else {
             magmaOptions.style.display = 'none';
+        }
+
+        // Показ специфичных полей для A5/1
+        if (algo === 'a51') {
+            a51Options.style.display = 'block';
+        } else {
+            a51Options.style.display = 'none';
+        }
+
+        if (algo === 'a52') {
+            a52Options.style.display = 'block';
+        } else {
+            a52Options.style.display = 'none';
         }
 
         // Показ опций Вижинера
@@ -147,6 +162,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const isEncrypt = document.querySelector('input[name="operation"]:checked').value === 'encrypt';
 
         const algorithm = algoSelect.value;
+        const errorMsg = document.getElementById('a51ErrorMsg');
+        if (errorMsg) errorMsg.textContent = '';
         let result = "";
         const vizhType = document.querySelector('input[name="vizhType"]:checked').value;
 
@@ -272,10 +289,175 @@ document.addEventListener('DOMContentLoaded', () => {
             result = magmaGamma(text, rawValue, syncValue);
         }
         else if (algorithm === 'a51') {
-            result = a51(text, isTextMode, isEncrypt, rawValue);
+            const rawKey = document.getElementById('a51KeyInput').value.trim();
+            const rawCadr = document.getElementById('a51CadrInput').value.trim();
+            const errorMsg = document.getElementById('a51ErrorMsg');
+
+            let finalKey, finalCadr;
+
+            try {
+                if (!rawKey || !rawCadr) {
+                    throw new Error("Оба поля (ключ и кадр) должны быть заполнены.");
+                }
+
+                try {
+
+                    const cleanKey = rawKey.toLowerCase().endsWith('n') ? rawKey.slice(0, -1) : rawKey;
+
+                    if (!/^\d+$/.test(cleanKey)) {
+                        throw new Error();
+                    }
+
+                    finalKey = BigInt(cleanKey);
+                } catch (e) {
+                    throw new Error("Ключ должен быть целым числом (формат BigInt).");
+                }
+
+                if (finalKey < 0n || finalKey > 18446744073709551615n) {
+                    throw new Error("Ключ выходит за пределы 64 бит (0 - 18446744073709551615).");
+                }
+
+                if (!/^\d+$/.test(rawCadr)) {
+                    throw new Error("Номер кадра должен содержать только цифры.");
+                }
+
+                finalCadr = Number(rawCadr);
+
+                if (finalCadr < 0 || finalCadr > 4194303) {
+                    throw new Error("Номер кадра выходит за пределы 22 бит (0 - 4194303).");
+                }
+
+                result = a51(text, isTextMode, isEncrypt, finalKey, finalCadr);
+
+                errorMsg.textContent = "";
+
+            } catch (e) {
+                errorMsg.textContent = e.message;
+                errorMsg.style.display = "block";
+                return;
+            }
         }
         else if (algorithm === 'a52') {
-            result = a52(text, isTextMode, isEncrypt, rawValue);
+            const rawKey = document.getElementById('a52KeyInput').value.trim();
+            const rawCadr = document.getElementById('a52CadrInput').value.trim();
+            const errorMsg = document.getElementById('a52ErrorMsg');
+
+            if (errorMsg) errorMsg.textContent = '';
+
+            try {
+                if (!rawKey || !rawCadr) throw new Error("Заполните ключ и кадр.");
+
+                const cleanKey = rawKey.toLowerCase().endsWith('n') ? rawKey.slice(0, -1) : rawKey;
+                const finalKey = BigInt(cleanKey);
+                const finalCadr = Number(rawCadr);
+
+                // Валидация границ
+                if (finalKey < 0n || finalKey > 18446744073709551615n) throw new Error("Ключ > 64 бит.");
+                if (finalCadr < 0 || finalCadr > 4194303) throw new Error("Кадр > 22 бит.");
+
+                const isTextMode = document.querySelector('input[name="workMode"]:checked').value === 'text';
+                const isEncrypt = document.querySelector('input[name="operation"]:checked').value === 'encrypt';
+
+                result = a52(text, isTextMode, isEncrypt, finalKey, finalCadr);
+
+            } catch (e) {
+                errorMsg.textContent = e.message;
+                return;
+            }
+        }
+        else if (algorithm === 'magma') {
+            result = magma(text, isTextMode, isEncrypt);
+        }
+        else if (algorithm === 'gost2814789') {
+
+            function parseHexToUint32(hexStr, expectedLength) {
+                // Удаляем всё, кроме символов 0-9, a-f
+                const cleanHex = hexStr.replace(/[^0-9a-fA-F]/g, '');
+                const result = new Uint32Array(expectedLength);
+
+                for (let i = 0; i < expectedLength; i++) {
+                    // Берем по 8 символов (32 бита)
+                    const chunk = cleanHex.substring(i * 8, i * 8 + 8);
+                    if (chunk) {
+                        result[i] = parseInt(chunk, 16) >>> 0;
+                    }
+                }
+                return result;
+            }
+
+            /**
+             * Преобразует Uint32Array обратно в красивую Hex строку для вывода
+             */
+            function formatUint32ToHex(uint32Arr) {
+                return Array.from(uint32Arr)
+                    .map(num => (num >>> 0).toString(16).padStart(8, '0'))
+                    .join(' ');
+            }
+
+            try {
+                // 1. Преобразуем входной блок (64 бита = 2 слова по 32 бита)
+                const block = parseHexToUint32(text, 2);
+
+                // 2. Преобразуем ключ (256 бит = 8 слов по 32 бита)
+                const key = parseHexToUint32(rawValue, 8);
+
+                // 3. Вызываем вашу функцию
+                // Важно: передаем block, key, флаг направления и null для sBox
+                const processedBlock = gost2814789(block, key, isEncrypt, null);
+
+                // 4. Форматируем результат обратно в Hex строку
+                result = formatUint32ToHex(processedBlock);
+
+            } catch (e) {
+                console.error(e);
+                result = "Ошибка: Проверьте правильность ввода Hex данных (ключ 64 симв, блок 16 симв)";
+            }
+
+        }
+        else if (algorithm === 'aes') {
+            // Вспомогательная функция для конвертации строки "2b 7e..." в Uint8Array
+            const parseHexString = (str) => {
+                // Убираем все пробелы и не-hex символы
+                const cleanStr = str.replace(/[^0-9a-fA-F]/g, '');
+                const bytes = new Uint8Array(cleanStr.length / 2);
+                for (let i = 0; i < bytes.length; i++) {
+                    bytes[i] = parseInt(cleanStr.substr(i * 2, 2), 16);
+                }
+                return bytes;
+            };
+
+            try {
+                // 1. ПОДГОТОВКА ДАННЫХ (Конвертация строк в Uint8Array)
+                const inputBytes = parseHexString(text);
+                const keyBytes = parseHexString(rawValue);
+
+                // Проверка корректности длин (AES ожидает 16 байт данных)
+                if (inputBytes.length !== 16) {
+                    throw new Error("Данные должны содержать ровно 16 байт (32 Hex-символа)");
+                }
+
+                // Проверка длины ключа (ваша функция поддерживает 16, 24 или 32)
+                if (![16, 24, 32].includes(keyBytes.length)) {
+                    throw new Error("Ключ должен быть 16, 24 или 32 байта");
+                }
+
+                // 2. ВЫЗОВ ФУНКЦИИ
+                // Передаем: массив данных, массив ключа, true/false для шифрования, и true для режима текста
+                const rawResult = aes(inputBytes, keyBytes, isEncrypt, true);
+
+                // 3. ОБРАБОТКА РЕЗУЛЬТАТА ДЛЯ ВЫВОДА
+                // Превращаем Uint8Array обратно в красивую строку Hex для интерфейса
+                result = Array.from(rawResult)
+                    .map(b => b.toString(16).padStart(2, '0').toUpperCase())
+                    .join(' ');
+
+            } catch (e) {
+                // Если формат Hex был неверным или длины не совпали
+                result = "Ошибка: " + e.message;
+            }
+        }
+        else if (algorithm === 'kuznechick') {
+            result = kuznechick(text, rawValue, isEncrypt);
         }
         // Вывод результата
         document.getElementById('outputText').value = result;
@@ -396,6 +578,24 @@ function getDeterminant(matrix) {
     }
 
     return det;
+}
+
+// Преобразует Hex-строку (например, "00 11 ff") в Uint8Array
+function hexToBytes(hex) {
+    hex = hex.replace(/\s+/g, ''); // убираем пробелы
+    if (hex.length % 2 !== 0) hex = '0' + hex;
+    const bytes = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < bytes.length; i++) {
+        bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+    }
+    return bytes;
+}
+
+// Преобразует Uint8Array обратно в Hex-строку для вывода
+function bytesToHex(bytes) {
+    return Array.from(bytes)
+        .map(b => b.toString(16).padStart(2, '0').toUpperCase())
+        .join(' ');
 }
 
 //Валидация консант в Шенноне
@@ -1144,6 +1344,37 @@ function replaceNumbersWithWords(text) {
     });
 
     return currentText;
+}
+
+// Перевод текста в массив битов (каждая буква = 5 бит)
+function textToBits(text) {
+    const ALPHABET = "абвгдежзийклмнопрстуфхцчшщъыьэюя";
+    let bits = [];
+    for (let char of text.toLowerCase()) {
+        let index = ALPHABET.indexOf(char);
+        if (index === -1) continue;
+
+        for (let i = 4; i >= 0; i--) {
+            bits.push((index >> i) & 1);
+        }
+    }
+    return bits;
+}
+
+// Перевод битов обратно в текст
+function bitsToText(bits) {
+    let text = "";
+    const ALPHABET = "абвгдежзийклмнопрстуфхцчшщъыьэюя";
+    for (let i = 0; i < bits.length; i += 5) {
+        let chunk = bits.slice(i, i + 5);
+        if (chunk.length < 5) break;
+        let index = 0;
+        for (let bit of chunk) {
+            index = (index << 1) | bit;
+        }
+        text += ALPHABET[index];
+    }
+    return text;
 }
 
 // .//////////////////////////////////////////////////////////////////////////////////////
@@ -4238,87 +4469,787 @@ function UnencryptCTR(text, key) {
     return encryptCTR(text, key);
 }
 
+//Параметры для а5/1
+//K = 9223372036854775807n
+//f = 12345
+
 //15. А5/1
-function a51(text, isTextMode, isEncrypt, rawValue) {
+function a51(text, isTextMode, isEncrypt, key, cadr) {
 
     let processedText = "";
 
     if (isTextMode) {
 
-        //TextMode
+        processedText = convertingInTextMode(text);
 
-    }else{
+    } else {
 
-        //TestMode
         processedText = text.replace(/\s/g, '').toLowerCase().replaceAll(',', 'зпт').replaceAll('.', 'тчк');
 
+    }
+
+    let inputBits = textToBits(processedText);
+    let outputBits = [];
+
+    const clock = (reg, feedback, inputBit = 0) => {
+
+        let newBit = feedback ^ inputBit;
+
+        reg.unshift(newBit);
+
+        return reg.pop();
+    };
+
+    for (let frameStart = 0; frameStart < inputBits.length; frameStart += 114) {
+
+        let r1 = new Array(19).fill(0);
+        let r2 = new Array(22).fill(0);
+        let r3 = new Array(23).fill(0);
+
+        const getFb1 = () => r1[18] ^ r1[17] ^ r1[16] ^ r1[13];
+        const getFb2 = () => r2[21] ^ r2[20];
+        const getFb3 = () => r3[22] ^ r3[21] ^ r3[20] ^ r3[7];
+
+        let currentCadr = (cadr + Math.floor(frameStart / 114)) % 4194304;
+
+        // ЭТАП 1
+        for (let i = 0; i < 64; i++) {
+
+            let bit = (key >> BigInt(i)) & 1n;
+
+            clock(r1, getFb1(), Number(bit));
+            clock(r2, getFb2(), Number(bit));
+            clock(r3, getFb3(), Number(bit));
+            console.log(r2.join().replaceAll(',', ''));
+
+        }
+
+        // ЭТАП 2
+        for (let i = 0; i < 22; i++) {
+
+            let bit = (currentCadr >> i) & 1;
+
+            clock(r1, getFb1(), bit);
+            clock(r2, getFb2(), bit);
+            clock(r3, getFb3(), bit);
+
+        }
+
+        // ЭТАП 3
+        for (let i = 0; i < 100; i++) {
+
+            let f = (r1[8] & r2[10]) | (r1[8] & r3[10]) | (r2[10] & r3[10]);
+
+            if (r1[8] === f) clock(r1, getFb1());
+            if (r2[10] === f) clock(r2, getFb2());
+            if (r3[10] === f) clock(r3, getFb3());
+
+        }
+
+        // ЭТАП 4
+        let frameEnd = Math.min(frameStart + 114, inputBits.length);
+
+        for (let i = frameStart; i < frameEnd; i++) {
+
+            let f = (r1[8] & r2[10]) | (r1[8] & r3[10]) | (r2[10] & r3[10]);
+
+            if (r1[8] === f) clock(r1, getFb1());
+            if (r2[10] === f) clock(r2, getFb2());
+            if (r3[10] === f) clock(r3, getFb3());
+
+            let keystreamBit = r1[18] ^ r2[21] ^ r3[22];
+
+            outputBits.push(inputBits[i] ^ keystreamBit);
+        }
+
+        console.log(`Кадр ${Math.floor(frameStart / 114) + 1} обработан с Fn: ${currentCadr}`);
+    }
+
+    if (isTextMode) {
+        return inConvertingInTextMode(bitsToText(outputBits));
+    } else {
+        return bitsToText(outputBits);
     }
 }
 
 //16. A5/2
-function a52(text, isTextMode, isEncrypt, rawValue) {
+function a52(text, isTextMode, isEncrypt, key, cadr) {
+
+    let processedText = "";
+
+    if (isTextMode) {
+        processedText = convertingInTextMode(text);
+    } else {
+        processedText = text.replace(/\s/g, '').toLowerCase().replaceAll(',', 'зпт').replaceAll('.', 'тчк');
+    }
+
+    let inputBits = textToBits(processedText);
+    let outputBits = [];
+
+    const clock = (reg, feedback, inputBit = 0) => {
+
+        let newBit = feedback ^ inputBit;
+
+        reg.unshift(newBit);
+
+        return reg.pop();
+
+    };
+
+    const maj = (x, y, z) => (x & y) | (x & z) | (y & z);
+
+    for (let frameStart = 0; frameStart < inputBits.length; frameStart += 114) {
+
+        let r1 = new Array(19).fill(0);
+        let r2 = new Array(22).fill(0);
+        let r3 = new Array(23).fill(0);
+        let r4 = new Array(17).fill(0);
+
+        const getFb1 = () => r1[18] ^ r1[17] ^ r1[16] ^ r1[13];
+        const getFb2 = () => r2[21] ^ r2[20];
+        const getFb3 = () => r3[22] ^ r3[21] ^ r3[20] ^ r3[7];
+        const getFb4 = () => r4[16] ^ r4[11];
+
+        let currentCadr = (cadr + Math.floor(frameStart / 114)) % 4194304;
+
+        // ЭТАП 1
+        for (let i = 0; i < 64; i++) {
+
+            let bit = Number((key >> BigInt(i)) & 1n);
+
+            clock(r1, getFb1(), bit);
+            clock(r2, getFb2(), bit);
+            clock(r3, getFb3(), bit);
+            clock(r4, getFb4(), bit);
+
+        }
+
+        // ЭТАП 2
+        for (let i = 0; i < 22; i++) {
+
+            let bit = (currentCadr >> i) & 1;
+
+            clock(r1, getFb1(), bit);
+            clock(r2, getFb2(), bit);
+            clock(r3, getFb3(), bit);
+            clock(r4, getFb4(), bit);
+
+        }
+
+        r4[3] = 1;
+        r4[7] = 1;
+        r4[10] = 1;
+
+        // ЭТАП 3
+        for (let i = 0; i < 99; i++) {
+
+            let f = maj(r4[3], r4[7], r4[10]);
+
+            if (r4[10] === f) clock(r1, getFb1());
+            if (r4[3] === f) clock(r2, getFb2());
+            if (r4[7] === f) clock(r3, getFb3());
+
+            clock(r4, getFb4());
+
+        }
+
+        // ЭТАП 4
+        let frameEnd = Math.min(frameStart + 114, inputBits.length);
+
+        for (let i = frameStart; i < frameEnd; i++) {
+
+            let f = maj(r4[3], r4[7], r4[10]);
+
+            if (r4[10] === f) clock(r1, getFb1());
+            if (r4[3] === f) clock(r2, getFb2());
+            if (r4[7] === f) clock(r3, getFb3());
+
+            clock(r4, getFb4());
+
+            let keystreamBit =
+                r1[18] ^ maj(r1[12], r1[14], r1[15]) ^
+                r2[21] ^ maj(r2[9], r2[13], r2[16]) ^
+                r3[22] ^ maj(r3[13], r3[16], r3[18]);
+
+            outputBits.push(inputBits[i] ^ (keystreamBit & 1));
+        }
+    }
+
+    if (isTextMode) {
+        return inConvertingInTextMode(bitsToText(outputBits));
+    } else {
+        return bitsToText(outputBits);
+    }
+}
+
+//16. Магма
+function magma(text, isTextMode, isEncrypt) {
 
 }
 
+//16. ГОСТ 28147-89
+function gost2814789(block, key, isEncrypt, sBox) {
+    if (!sBox) {
+        sBox = [
+            [12, 4, 6, 2, 10, 5, 11, 9, 14, 8, 13, 7, 0, 3, 15, 1],
+            [6, 8, 2, 3, 9, 10, 5, 12, 1, 14, 4, 7, 11, 13, 0, 15],
+            [11, 3, 5, 8, 2, 15, 10, 13, 14, 1, 7, 4, 12, 9, 6, 0],
+            [12, 8, 2, 1, 13, 4, 15, 6, 7, 0, 10, 5, 3, 14, 9, 11],
+            [7, 15, 5, 10, 8, 1, 6, 13, 0, 9, 3, 14, 11, 4, 2, 12],
+            [5, 13, 15, 6, 9, 2, 12, 10, 11, 7, 8, 1, 4, 3, 14, 0],
+            [8, 14, 2, 5, 6, 9, 1, 12, 15, 4, 11, 0, 13, 10, 3, 7],
+            [1, 7, 14, 13, 0, 5, 8, 3, 4, 15, 10, 6, 9, 12, 11, 2]
+        ];
+    }
 
+    // загрузка половинок (N1 - младшая, N2 - старшая)
+    let n1 = block[1] >>> 0;
+    let n2 = block[0] >>> 0;
 
+    for (let i = 0; i < 32; i++) {
+        let keyIndex;
 
+        if (isEncrypt) {
+            keyIndex = (i < 24) ? (i % 8) : (7 - (i % 8));
+        } else {
+            keyIndex = (i < 8) ? (i % 8) : (7 - (i % 8));
+        }
 
+        let currentKey = key[keyIndex] >>> 0;
 
+        // Сложение по модулю 2^32
+        let s = (n1 + currentKey) >>> 0;
 
+        let sBoxSubstituted = 0;
+        for (let j = 0; j < 8; j++) {
+            let chunk = (s >>> (j * 4)) & 0x0F;
+            sBoxSubstituted = (sBoxSubstituted | ((sBox[j][chunk] << (j * 4)) >>> 0)) >>> 0;
+        }
 
+        // Циклический сдвиг влево на 11 шагов
+        let shifted = ((sBoxSubstituted << 11) | (sBoxSubstituted >>> 21)) >>> 0;
 
+        // XOR
+        let f = (shifted ^ n2) >>> 0;
 
+        if (i < 31) {
+            n2 = n1;
+            n1 = f;
+        } else {
+            n2 = f;
+        }
+    }
 
+    // Возвращение
+    return new Uint32Array([n2, n1]);
+}
 
+// // Данные из ГОСТ Р 34.12-2015 Приложение А.2
+// const key = new Uint32Array([
+//     0xffeeddcc, 0xbbaa9988, 0x77665544, 0x33221100,
+//     0xf0f1f2f3, 0xf4f5f6f7, 0xf8f9fafb, 0xfcfdfeff
+// ]);
 
+// const plainText = new Uint32Array([0xfedcba98, 0x76543210]);
 
+// // 1. Шифруем
+// console.log("Шифрование...");
+// const cipherText = gost2814789(plainText, key, true);
+// console.log("Результат (HEX):",
+//     cipherText[0].toString(16).padStart(8, '0'),
+//     cipherText[1].toString(16).padStart(8, '0')
+// );
+// // Ожидается: 4ee901e5 c2d8ca3d
 
-//Скрэмблер
-// let keyR1 = constA.toString().padStart(5, '0');
-// let keyR2 = constC.toString().padStart(4, '0');
+// // 2. Расшифровываем полученный результат
+// console.log("Расшифрование...");
+// const decryptedText = gost2814789(cipherText, key, false);
+// console.log("Результат (HEX):",
+//     decryptedText[0].toString(16).padStart(8, '0'),
+//     decryptedText[1].toString(16).padStart(8, '0')
+// );
+// // Ожидается исходный текст: fedcba98 76543210
 
-// let bitsString = "";
-// for (let i = 0; i < processedText.length; i++) {
-//     bitsString += binaryEncoding[processedText[i]];
-// }
+//16. AES
+function aes(inputBytes, keyBytes, mode, isTextMode) {
 
-// let mainLen = bitsString.length;
+    // S-блок (Таблица замен)
+    const SBOX = [
+        0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
+        0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
+        0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15,
+        0x04, 0xc7, 0x23, 0xc3, 0x18, 0x96, 0x05, 0x9a, 0x07, 0x12, 0x80, 0xe2, 0xeb, 0x27, 0xb2, 0x75,
+        0x09, 0x83, 0x2c, 0x1a, 0x1b, 0x6e, 0x5a, 0xa0, 0x52, 0x3b, 0xd6, 0xb3, 0x29, 0xe3, 0x2f, 0x84,
+        0x53, 0xd1, 0x00, 0xed, 0x20, 0xfc, 0xb1, 0x5b, 0x6a, 0xcb, 0xbe, 0x39, 0x4a, 0x4c, 0x58, 0xcf,
+        0xd0, 0xef, 0xaa, 0xfb, 0x43, 0x4d, 0x33, 0x85, 0x45, 0xf9, 0x02, 0x7f, 0x50, 0x3c, 0x9f, 0xa8,
+        0x51, 0xa3, 0x40, 0x8f, 0x92, 0x9d, 0x38, 0xf5, 0xbc, 0xb6, 0xda, 0x21, 0x10, 0xff, 0xf3, 0xd2,
+        0xcd, 0x0c, 0x13, 0xec, 0x5f, 0x97, 0x44, 0x17, 0xc4, 0xa7, 0x7e, 0x3d, 0x64, 0x5d, 0x19, 0x73,
+        0x60, 0x81, 0x4f, 0xdc, 0x22, 0x2a, 0x90, 0x88, 0x46, 0xee, 0xb8, 0x14, 0xde, 0x5e, 0x0b, 0xdb,
+        0xe0, 0x32, 0x3a, 0x0a, 0x49, 0x06, 0x24, 0x5c, 0xc2, 0xd3, 0xac, 0x62, 0x91, 0x95, 0xe4, 0x79,
+        0xe7, 0xc8, 0x37, 0x6d, 0x8d, 0xd5, 0x4e, 0xa9, 0x6c, 0x56, 0xf4, 0xea, 0x65, 0x7a, 0xae, 0x08,
+        0xba, 0x78, 0x25, 0x2e, 0x1c, 0xa6, 0xb4, 0xc6, 0xe8, 0xdd, 0x74, 0x1f, 0x4b, 0xbd, 0x8b, 0x8a,
+        0x70, 0x3e, 0xb5, 0x66, 0x48, 0x03, 0xf6, 0x0e, 0x61, 0x35, 0x57, 0xb9, 0x86, 0xc1, 0x1d, 0x9e,
+        0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf,
+        0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
+    ];
 
-// let outputBitR1 = [];
-// let register1 = keyR1;
-// for (let i = 0; i < mainLen; i++) {
-//     outputBitR1.push(register1[4]);
+    // Константы раундов (Rcon). 
+    const RCON = [
+        0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36, 0x6C, 0xD8, 0xAB, 0x4D, 0x9A
+    ];
 
-//     let appendBit = (Number(register1[0]) ^ Number(register1[2]) ^ Number(register1[3]) ^ Number(register1[4])).toString();
-//     register1 = appendBit + register1.slice(0, 4);
-// }
+    const RSBOX = [
+        0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb,
+        0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb,
+        0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e,
+        0x08, 0x2e, 0xa1, 0x66, 0x28, 0xd9, 0x24, 0xb2, 0x76, 0x5b, 0xa2, 0x49, 0x6d, 0x8b, 0xd1, 0x25,
+        0x72, 0xf8, 0xf6, 0x64, 0x86, 0x68, 0x98, 0x16, 0xd4, 0xa4, 0x5c, 0xcc, 0x5d, 0x65, 0xb6, 0x92,
+        0x6c, 0x70, 0x48, 0x50, 0xfd, 0xed, 0xb9, 0xda, 0x5e, 0x15, 0x46, 0x57, 0xa7, 0x8d, 0x9d, 0x84,
+        0x90, 0xd8, 0xab, 0x00, 0x8c, 0xbc, 0xd3, 0x0a, 0xf7, 0xe4, 0x58, 0x05, 0xb8, 0xb3, 0x45, 0x06,
+        0xd0, 0x2c, 0x1e, 0x8f, 0xca, 0x3f, 0x0f, 0x02, 0xc1, 0xaf, 0xbd, 0x03, 0x01, 0x13, 0x8a, 0x6b,
+        0x3a, 0x91, 0x11, 0x41, 0x4f, 0x67, 0xdc, 0xea, 0x97, 0xf2, 0xcf, 0xce, 0xf0, 0xb4, 0xe6, 0x73,
+        0x96, 0xac, 0x74, 0x22, 0xe7, 0xad, 0x35, 0x85, 0xe2, 0xf9, 0x37, 0xe8, 0x1c, 0x75, 0xdf, 0x6e,
+        0x47, 0xf1, 0x1a, 0x71, 0x1d, 0x29, 0xc5, 0x89, 0x6f, 0xb7, 0x62, 0x0e, 0xaa, 0x18, 0xbe, 0x1b,
+        0xfc, 0x56, 0x3e, 0x4b, 0xc6, 0xd2, 0x79, 0x20, 0x9a, 0xdb, 0xc0, 0xfe, 0x78, 0xcd, 0x5a, 0xf4,
+        0x1f, 0xdd, 0xa8, 0x33, 0x88, 0x07, 0xc7, 0x31, 0xb1, 0x12, 0x10, 0x59, 0x27, 0x80, 0xec, 0x5f,
+        0x60, 0x51, 0x7f, 0xa9, 0x19, 0xb5, 0x4a, 0x0d, 0x2d, 0xe5, 0x7a, 0x9f, 0x93, 0xc9, 0x9c, 0xef,
+        0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61,
+        0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d
+    ];
 
-// let outputBitR2 = [];
-// let register2 = keyR2;
-// for (let i = 0; i < mainLen; i++) {
-//     outputBitR2.push(register2[3]);
+    //замена байтов слова через S-блок
+    function SubWord(word) {
+        return [SBOX[word[0]], SBOX[word[1]], SBOX[word[2]], SBOX[word[3]]];
+    }
 
-//     let appendBit = (Number(register2[0]) ^ Number(register2[3])).toString();
-//     register2 = appendBit + register2.slice(0, 3);
-// }
+    //циклический сдвиг байтов слова влево
+    function RotWord(word) {
+        return [word[1], word[2], word[3], word[0]];
+    }
 
-// let gamma = [];
-// for (let i = 0; i < mainLen; i++) {
-//     gamma.push((Number(outputBitR1[i]) ^ Number(outputBitR2[i])).toString());
-// }
+    //генерация ключей aes
+    function KeyExpansion(keyBytes, Nk, Nr, Nb) {
 
-// let resultBits = "";
-// for (let i = 0; i < mainLen; i++) {
-//     resultBits += (Number(bitsString[i]) ^ Number(gamma[i])).toString();
-// }
+        const w = new Array(Nb * (Nr + 1));
+        let temp;
 
-// const invBinaryEncoding = {};
-// for (let char in binaryEncoding) {
-//     invBinaryEncoding[binaryEncoding[char]] = char;
-// }
+        // Первые Nk слов
+        for (let i = 0; i < Nk; i++) {
+            w[i] = [keyBytes[4 * i], keyBytes[4 * i + 1], keyBytes[4 * i + 2], keyBytes[4 * i + 3]];
+        }
 
-// for (let i = 0; i < resultBits.length; i += 5) {
-//     let chunk = resultBits.substring(i, i + 5);
-//     result += invBinaryEncoding[chunk];
-// }
+        // Генерация остальных слов
+        for (let i = Nk; i < Nb * (Nr + 1); i++) {
+            temp = [...w[i - 1]];
+
+            if (i % Nk === 0) {
+                temp = SubWord(RotWord(temp));
+                temp[0] ^= RCON[i / Nk];
+            }
+            // правило для 256-битных ключей (Nk = 8)
+            else if (Nk > 6 && i % Nk === 4) {
+                temp = SubWord(temp);
+            }
+
+            // Текущее слово = (предыдущее слово) XOR (слово на Nk позиций раньше)
+            w[i] = [
+                w[i - Nk][0] ^ temp[0],
+                w[i - Nk][1] ^ temp[1],
+                w[i - Nk][2] ^ temp[2],
+                w[i - Nk][3] ^ temp[3]
+            ];
+        }
+
+        return w;
+    }
+
+    function SubBytes(state) {
+        for (let i = 0; i < 16; i++) {
+            state[i] = SBOX[state[i]];
+        }
+    }
+
+    function InvSubBytes(state) {
+        for (let i = 0; i < 16; i++) {
+            state[i] = RSBOX[state[i]];
+        }
+    }
+
+    //Процедура шифрования
+    function Cipher(input, out, w, Nr, Nb) {
+        let state = new Uint8Array(input); // Копирование входа в матрицу состояния
+
+        AddRoundKey(state, w, 0, Nb); // Первичное сложение с ключом
+
+        for (let round = 1; round <= Nr - 1; round++) {
+            SubBytes(state);
+            ShiftRows(state);
+            MixColumns(state);
+            AddRoundKey(state, w, round * Nb, Nb);
+        }
+
+        // Последний раунд (без MixColumns)
+        SubBytes(state);
+        ShiftRows(state);
+        AddRoundKey(state, w, Nr * Nb, Nb);
+
+        for (let i = 0; i < 16; i++) {
+            out[i] = state[i];
+        }
+    }
+
+    //Процедура расшифрования
+    function InvCipher(input, out, w, Nr, Nb) {
+        let state = new Uint8Array(input);
+
+        AddRoundKey(state, w, Nr * Nb, Nb);
+
+        for (let round = Nr - 1; round >= 1; round--) {
+            InvShiftRows(state);
+            InvSubBytes(state);
+            AddRoundKey(state, w, round * Nb, Nb);
+            InvMixColumns(state);
+        }
+
+        InvShiftRows(state);
+        InvSubBytes(state);
+        AddRoundKey(state, w, 0, Nb);
+
+        for (let i = 0; i < 16; i++) {
+            out[i] = state[i];
+        }
+    }
+
+    function ShiftRows(state) {
+        let t;
+
+        // Строка 1: сдвиг влево на 1
+        t = state[1];
+        state[1] = state[5];
+        state[5] = state[9];
+        state[9] = state[13];
+        state[13] = t;
+
+        // Строка 2: сдвиг влево на 2
+        t = state[2];
+        state[2] = state[10];
+        state[10] = t;
+        t = state[6];
+        state[6] = state[14];
+        state[14] = t;
+
+        // Строка 3: сдвиг влево на 3
+        t = state[15];
+        state[15] = state[11];
+        state[11] = state[7];
+        state[7] = state[3];
+        state[3] = t;
+    }
+
+    function InvShiftRows(state) {
+        let t;
+
+        // Строка 1: вправо на 1
+        t = state[13];
+        state[13] = state[9];
+        state[9] = state[5];
+        state[5] = state[1];
+        state[1] = t;
+
+        // Строка 2: вправо на 2
+        t = state[2];
+        state[2] = state[10];
+        state[10] = t;
+        t = state[6];
+        state[6] = state[14];
+        state[14] = t;
+
+        // Строка 3: вправо на 3
+        t = state[3];
+        state[3] = state[7];
+        state[7] = state[11];
+        state[11] = state[15];
+        state[15] = t;
+    }
+
+    function AddRoundKey(state, w, wordOffset, Nb) {
+        for (let col = 0; col < Nb; col++) {
+            let word = w[wordOffset + col];
+            state[col * 4 + 0] ^= word[0];
+            state[col * 4 + 1] ^= word[1];
+            state[col * 4 + 2] ^= word[2];
+            state[col * 4 + 3] ^= word[3];
+        }
+    }
+
+    //выполняет умножение на {02} в поле GF(2^8).
+    function xtime(a) {
+        return ((a << 1) ^ (((a >> 7) & 1) * 0x1b)) & 0xff;
+    }
+
+    //Обобщенное умножение в поле GF(2^8) для расшифрования.
+    function multiply(a, b) {
+        let p = 0;
+        for (let i = 0; i < 8; i++) {
+            if ((b & 1) !== 0) {
+                p ^= a;
+            }
+            let hiBitSet = (a & 0x80) !== 0;
+            a <<= 1;
+            if (hiBitSet) {
+                a ^= 0x1b;
+            }
+            b >>= 1;
+        }
+        return p & 0xff;
+    }
+
+    function InvMixColumns(state) {
+        for (let i = 0; i < 4; i++) {
+            let s0 = state[i * 4 + 0];
+            let s1 = state[i * 4 + 1];
+            let s2 = state[i * 4 + 2];
+            let s3 = state[i * 4 + 3];
+
+            state[i * 4 + 0] = multiply(s0, 0x0e) ^ multiply(s1, 0x0b) ^ multiply(s2, 0x0d) ^ multiply(s3, 0x09);
+            state[i * 4 + 1] = multiply(s0, 0x09) ^ multiply(s1, 0x0e) ^ multiply(s2, 0x0b) ^ multiply(s3, 0x0d);
+            state[i * 4 + 2] = multiply(s0, 0x0d) ^ multiply(s1, 0x09) ^ multiply(s2, 0x0e) ^ multiply(s3, 0x0b);
+            state[i * 4 + 3] = multiply(s0, 0x0b) ^ multiply(s1, 0x0d) ^ multiply(s2, 0x09) ^ multiply(s3, 0x0e);
+        }
+    }
+
+    function MixColumns(state) {
+        for (let i = 0; i < 4; i++) {
+            let s0 = state[i * 4 + 0];
+            let s1 = state[i * 4 + 1];
+            let s2 = state[i * 4 + 2];
+            let s3 = state[i * 4 + 3];
+
+            // Формулы из раздела 5.1.3
+            state[i * 4 + 0] = xtime(s0) ^ (xtime(s1) ^ s1) ^ s2 ^ s3;
+            state[i * 4 + 1] = s0 ^ xtime(s1) ^ (xtime(s2) ^ s2) ^ s3;
+            state[i * 4 + 2] = s0 ^ s1 ^ xtime(s2) ^ (xtime(s3) ^ s3);
+            state[i * 4 + 3] = (xtime(s0) ^ s0) ^ s1 ^ s2 ^ xtime(s3);
+        }
+    }
+
+    const Nb = 4;
+    let Nk, Nr;
+
+    //Nk и Nr в зависимости от длины ключа
+    if (keyBytes.length === 16) { Nk = 4; Nr = 10; }
+    else if (keyBytes.length === 24) { Nk = 6; Nr = 12; }
+    else if (keyBytes.length === 32) { Nk = 8; Nr = 14; }
+    else { throw new Error("Неверная длина ключа. Ожидается 16, 24 или 32 байта."); }
+
+    // Процедура расширения ключа для создания массива из подключей
+    const w = KeyExpansion(keyBytes, Nk, Nr, Nb);
+
+    let outBytes = new Uint8Array(16);
+
+    if (mode === true) {
+        Cipher(inputBytes, outBytes, w, Nr, Nb);
+    } else if (mode === false) {
+        InvCipher(inputBytes, outBytes, w, Nr, Nb);
+    }
+
+    return outBytes;
+}
+
+//16. КУЗНЕЧИК
+function kuznechick(dataInput, keyInput, mode) {
+    // 1. КОНВЕРТАЦИЯ ВХОДНЫХ ДАННЫХ
+
+    // Преобразуем данные из строки '11 22 33...' в Uint8Array
+    let data;
+    if (typeof dataInput === 'string') {
+        data = new Uint8Array(
+            dataInput.trim().split(/\s+/).map(byte => parseInt(byte, 16))
+        );
+    } else {
+        data = new Uint8Array(dataInput);
+    }
+
+    // Преобразуем ключ из hex-строки в Uint8Array (если это строка)
+    let key;
+    if (typeof keyInput === 'string') {
+        const hex = keyInput.replace(/\s+/g, ''); // убираем пробелы, если есть
+        key = new Uint8Array(hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+    } else {
+        key = keyInput;
+    }
+
+    // Приводим mode к понятному для логики виду
+    const isEncrypt = (mode === true || mode === 'encrypt');
+
+    // Валидация размеров
+    if (data.length !== 16) {
+        throw new Error("Неверный размер блока данных (должно быть 16 байт)");
+    }
+
+    // 2. ВНУТРЕННИЕ КОНСТАНТЫ И ТАБЛИЦЫ
+    const PI = new Uint8Array([
+        252, 238, 221, 17, 207, 110, 49, 22, 251, 196, 250, 218, 35, 197, 4, 77,
+        233, 119, 240, 219, 147, 46, 153, 186, 23, 54, 241, 187, 20, 205, 95, 193,
+        249, 24, 101, 90, 226, 92, 239, 33, 129, 28, 60, 66, 139, 1, 142, 79,
+        5, 132, 2, 174, 227, 106, 143, 160, 6, 11, 237, 152, 127, 212, 211, 31,
+        235, 52, 44, 81, 234, 200, 72, 171, 242, 42, 104, 162, 253, 58, 206, 204,
+        181, 112, 14, 86, 8, 12, 118, 18, 191, 114, 19, 71, 156, 183, 93, 135,
+        21, 161, 150, 41, 16, 123, 154, 199, 243, 145, 120, 111, 157, 158, 178, 177,
+        50, 117, 25, 61, 255, 53, 138, 126, 109, 84, 198, 128, 195, 189, 13, 87,
+        223, 245, 36, 169, 62, 168, 67, 201, 215, 121, 214, 246, 124, 34, 185, 3,
+        224, 15, 236, 222, 122, 148, 176, 188, 220, 232, 40, 80, 78, 51, 10, 74,
+        167, 151, 96, 115, 30, 0, 98, 68, 26, 184, 56, 130, 100, 159, 38, 65,
+        173, 69, 70, 146, 39, 94, 85, 47, 140, 163, 165, 125, 105, 213, 149, 59,
+        7, 88, 179, 64, 134, 172, 29, 247, 48, 55, 107, 228, 136, 217, 231, 137,
+        225, 27, 131, 73, 76, 63, 248, 254, 141, 83, 170, 144, 202, 216, 133, 97,
+        32, 113, 103, 164, 45, 43, 9, 91, 203, 155, 37, 208, 190, 229, 108, 82,
+        89, 166, 116, 210, 230, 244, 180, 192, 209, 102, 175, 194, 57, 75, 99, 182
+    ]);
+
+    const PI_INV = new Uint8Array(256);
+    for (let i = 0; i < 256; i++) PI_INV[PI[i]] = i;
+
+    const L_VEC = [148, 32, 133, 16, 194, 192, 1, 251, 1, 192, 194, 16, 133, 32, 148, 1];
+
+    // 3. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (Математика)
+    function gfMul(a, b) {
+        let p = 0;
+        for (let i = 0; i < 8; i++) {
+            if ((b & 1) !== 0) p ^= a;
+            let hi_bit_set = (a & 0x80) !== 0;
+            a <<= 1;
+            if (hi_bit_set) a ^= 0xC3;
+            b >>= 1;
+        }
+        return p & 0xFF;
+    }
+
+    function X(a, b) {
+        let res = new Uint8Array(16);
+        for (let i = 0; i < 16; i++) res[i] = a[i] ^ b[i];
+        return res;
+    }
+
+    function S(state) {
+        let res = new Uint8Array(16);
+        for (let i = 0; i < 16; i++) res[i] = PI[state[i]];
+        return res;
+    }
+
+    function S_inv(state) {
+        let res = new Uint8Array(16);
+        for (let i = 0; i < 16; i++) res[i] = PI_INV[state[i]];
+        return res;
+    }
+
+    function R(state) {
+        let a_15 = 0;
+        for (let i = 0; i < 16; i++) a_15 ^= gfMul(state[i], L_VEC[i]);
+        let res = new Uint8Array(16);
+        res[0] = a_15;
+        for (let i = 1; i < 16; i++) res[i] = state[i - 1];
+        return res;
+    }
+
+    function R_inv(state) {
+        let a_0 = state[0];
+        let res = new Uint8Array(16);
+
+        for (let i = 0; i < 15; i++) {
+            res[i] = state[i + 1];
+        }
+
+        for (let i = 0; i < 15; i++) {
+            a_0 ^= gfMul(res[i], L_VEC[i]);
+        }
+
+        res[15] = a_0;
+        return res;
+    }
+
+    function L(state) {
+        let res = new Uint8Array(state);
+        for (let i = 0; i < 16; i++) res = R(res);
+        return res;
+    }
+
+    function L_inv(state) {
+        let res = new Uint8Array(state);
+        for (let i = 0; i < 16; i++) res = R_inv(res);
+        return res;
+    }
+
+    // 4. РАЗВЕРТКА КЛЮЧА
+    function keyExpansion(masterKey) {
+        const roundKeys = [];
+        roundKeys[0] = masterKey.slice(0, 16);
+        roundKeys[1] = masterKey.slice(16, 32);
+
+        function feistelRound(a1, a0, k) {
+            let res = X(a1, k);
+            res = S(res);
+            res = L(res);
+            return X(res, a0);
+        }
+
+        for (let i = 1; i <= 4; i++) {
+            let a1 = roundKeys[2 * i - 2];
+            let a0 = roundKeys[2 * i - 1];
+            for (let j = 1; j <= 8; j++) {
+                const cVector = new Uint8Array(16);
+                cVector[15] = 8 * (i - 1) + j;
+                const C = L(cVector);
+                const nextA1 = feistelRound(a1, a0, C);
+                const nextA0 = a1;
+                a1 = nextA1;
+                a0 = nextA0;
+            }
+            roundKeys[2 * i] = a1;
+            roundKeys[2 * i + 1] = a0;
+        }
+        return roundKeys;
+    }
+
+    // 5. ОСНОВНОЙ ЦИКЛ
+    let finalRoundKeys;
+    if (key.length === 32) {
+        finalRoundKeys = keyExpansion(key);
+    } else {
+        throw new Error("Мастер-ключ должен быть 32 байта");
+    }
+
+    let state = new Uint8Array(data);
+
+    if (isEncrypt) {
+        // Шифрование
+        for (let i = 0; i < 9; i++) {
+            state = X(state, finalRoundKeys[i]);
+            state = S(state);
+            state = L(state);
+        }
+        state = X(state, finalRoundKeys[9]);
+    } else {
+        // Расшифрование
+        state = X(state, finalRoundKeys[9]);
+        for (let i = 8; i >= 0; i--) {
+            state = L_inv(state);
+            state = S_inv(state);
+            state = X(state, finalRoundKeys[i]);
+        }
+    }
+
+    // Возвращаем результат в виде HEX-строки для удобства чтения
+    return Array.from(state).map(b => b.toString(16).padStart(2, '0')).join(' ').toUpperCase();
+}
+
+// const myData = '11 22 33 44 55 66 77 00 ff ee dd cc bb aa 99 88';
+// const myKey = '8899aabbccddeeff0011223344556677fedcba98765432100123456789abcdef';
+
+// // Зашифровать
+// const encrypted = kuznechick(myData, myKey, true);
+// console.log('Encrypted:', encrypted);
+
+// // Расшифровать
+// const decrypted = kuznechick(encrypted, myKey, false);
+// console.log('Decrypted:', decrypted);

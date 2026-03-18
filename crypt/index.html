@@ -224,6 +224,12 @@
                         <option value="phestel">СЕТЬ ФЕЙСТЕЛЯ</option>
                         <option value="shenonGamma">Шеннон (гаммирование)</option>
                         <option value="magmaGamma">Магма (гаммирование)</option>
+                        <option value="a51">A5/1</option>
+                        <option value="a52">A5/2</option>
+                        <option value="magma">Магма</option>
+                        <option value="gost2814789">ГОСТ 28147-89</option>
+                        <option value="aes">AES</option>
+                        <option value="kuznechick">КУЗНЕЧИК</option>
                     </select>
                 </div>
 
@@ -306,7 +312,35 @@
                     </div>
                 </div>
             </div>
-
+            <div id="a51Options" class="mt-3" style="display: none;">
+                <div class="section-label">Параметры A5/1</div>
+                <div class="mb-2">
+                    <div class="section-label">Сеансовый ключ (64 бита)</div>
+                    <input type="text" class="form-control form-control-custom" id="a51KeyInput"
+                        placeholder="Например: 18446744073709551615n" autocomplete="off">
+                    <div class="helper-text">Введите BigInt (число с 'n' на конце или просто цифры).</div>
+                </div>
+                <div class="mb-2">
+                    <div class="section-label">Номер кадра (22 бита)</div>
+                    <input type="number" class="form-control form-control-custom" id="a51CadrInput"
+                        placeholder="От 0 до 4194303" min="0" max="4194303">
+                </div>
+                <div id="a51ErrorMsg" style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;"></div>
+            </div>
+            <div id="a52Options" class="mt-3" style="display: none;">
+                <div class="section-label">Параметры A5/2</div>
+                <div class="mb-2">
+                    <div class="section-label">Сеансовый ключ (64 бита)</div>
+                    <input type="text" class="form-control form-control-custom" id="a52KeyInput"
+                        placeholder="Введите BigInt или число">
+                </div>
+                <div class="mb-2">
+                    <div class="section-label">Номер кадра (22 бита)</div>
+                    <input type="number" class="form-control form-control-custom" id="a52CadrInput"
+                        placeholder="0 - 4194303">
+                </div>
+                <div id="a52ErrorMsg" style="color: #dc3545; font-size: 0.85rem; margin-top: 5px;"></div>
+            </div>
             <div class="mb-4" id="keyContainer">
                 <div class="section-label">Ключ</div>
                 <input type="text" class="form-control form-control-custom" id="keyInput"
