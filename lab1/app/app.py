@@ -1,6 +1,6 @@
 import random
 from functools import lru_cache
-from flask import Flask, render_template, abort
+from flask import Flask, render_template, abort, request, redirect, url_for
 from faker import Faker
 
 fake = Faker()
@@ -24,8 +24,20 @@ def generate_comments(replies=True):
     return comments
 
 def generate_post(i):
+    
+    titles = [
+        'Маша и медведь',
+        'Дело ведут Колобки',
+        '1984',
+        'Братья Карамазовы',
+        'Тысяча и одна ночь',
+        'Война - это мир, свобода - это рабство'
+    ]
+    
+    post_title = titles[i] if i < len(titles) else fake.sentence(nb_words=5)
+    
     return {
-        'title': 'Заголовок поста',
+        'title': post_title,
         'text': fake.paragraph(nb_sentences=100),
         'author': fake.name(),
         'date': fake.date_time_between(start_date='-2y', end_date='now'),
@@ -45,13 +57,31 @@ def index():
 def posts():
     return render_template('posts.html', title='Посты', posts=posts_list())
 
-@app.route('/posts/<int:index>')
+@app.route('/posts/<int:index>', methods=['GET', 'POST'])
 def post(index):
+    
     posts = posts_list()
+    
     # 404 для теста
     if index < 0 or index >= len(posts):
         abort(404)
+        
     p = posts[index]
+
+    if request.method == 'POST':
+        
+        comment_text = request.form.get('comment_text') 
+        
+        if comment_text:
+            
+            new_comment = {
+                'author': 'Я', 
+                'text': comment_text
+            }
+            p['comments'].insert(0, new_comment)
+            
+        return redirect(url_for('post', index=index))
+    
     return render_template('post.html', title=p['title'], post=p)
 
 @app.route('/about')
