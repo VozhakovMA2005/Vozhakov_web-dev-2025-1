@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Просмотр параметров URL</h2>
+
+<div class="alert alert-secondary bg-dark text-warning border-0 shadow-sm mb-4">
+    <small class="text-white-50 d-block mb-1">Полный URL запроса:</small>
+    <code class="text-break" style="font-size: 1.1rem; color: #ffc107 !important;">
+        {{ full_url }}
+    </code>
+</div>
+
+{% if params %}
+<div class="table-responsive">
+    <table class="table table-hover border">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col" style="width: 30%;">Параметр</th>
+                <th scope="col">Значение</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for key, value in params.items() %}
+            <tr>
+                <td class="fw-bold text-secondary">{{ key }}</td>
+                <td><span class="badge bg-light text-dark border">{{ value }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="text-center py-5">
+    <p class="text-muted">Параметры не найдены. Попробуйте отправить форму или дописать
+        <code>?test=1&name=mikhail</code> в адресную строку.</p>
+    <a href="{{ url_for('form_input') }}" class="btn btn-outline-dark btn-sm">Перейти к форме</a>
+</div>
+{% endif %}
+
+{% endblock %}

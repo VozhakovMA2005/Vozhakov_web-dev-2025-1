@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="border-bottom pb-2 mb-4 text-dark">Полный аудит запроса</h2>
+
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <h4 class="text-secondary">Общие сведения</h4>
+        <table class="table table-sm table-bordered border-dark">
+            <thead class="table-dark">
+                <tr>
+                    <th style="width: 30%">Свойство</th>
+                    <th>Значение</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, value in info.items() if key not in ['Параметры URL (Args)', 'Данные формы (Form)',
+                'Cookies'] %}
+                <tr>
+                    <td class="bg-light fw-bold">{{ key }}</td>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <h4 class="text-secondary">URL Аргументы & Форма</h4>
+        <div class="p-3 border bg-light rounded">
+            <p class="mb-1 fw-bold text-dark">GET (args):</p>
+            <pre class="small text-muted border-bottom pb-2">{{ info['Параметры URL (Args)'] | tojson(indent=2) }}</pre>
+
+            <p class="mb-1 fw-bold text-dark mt-2">POST (form):</p>
+            <pre class="small text-muted">{{ info['Данные формы (Form)'] | tojson(indent=2) }}</pre>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <h4 class="text-secondary">Cookies</h4>
+        <div class="p-3 border bg-light rounded">
+            <pre class="small text-muted">{{ info['Cookies'] | tojson(indent=2) }}</pre>
+            <hr>
+            <p class="small text-secondary mb-0"><strong>LocalStorage (Client side):</strong></p>
+            <div id="ls-display" class="small text-muted" style="word-break: break-all;"></div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <h4 class="text-secondary">HTTP Заголовки</h4>
+        <table class="table table-hover table-sm border">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Заголовок</th>
+                    <th>Значение</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, value in headers.items() %}
+                <tr>
+                    <td class="fw-bold" style="font-size: 0.85rem;">{{ key }}</td>
+                    <td class="text-muted" style="font-size: 0.85rem;">{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.getElementById('ls-display').innerText = JSON.stringify(localStorage, null, 2);
+</script>
+{% endblock %}
