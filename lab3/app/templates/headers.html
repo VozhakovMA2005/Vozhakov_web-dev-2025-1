@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="border-bottom pb-2 mb-4 text-dark">Заголовки запроса</h2>
+<table class="table table-bordered border-secondary">
+    <thead class="table-dark">
+        <tr>
+            <th>Заголовок</th>
+            <th>Значение</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for key, value in headers.items() %}
+        <tr>
+            <td class="fw-bold">{{ key }}</td>
+            <td class="text-secondary">{{ value }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

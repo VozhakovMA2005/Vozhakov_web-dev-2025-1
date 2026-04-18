@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="mb-4">Центральная форма (POST)</h2>
+<form action="{{ url_for('form_input') }}?source=lab2&status=testing" method="POST"
+    class="bg-light p-4 border rounded shadow-sm">
+    <div class="mb-3">
+        <label class="form-label fw-bold">Ваше имя</label>
+        <input type="text" name="username" class="form-control" placeholder="Например, Михаил">
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-bold">Учебная группа</label>
+        <input type="text" name="group" class="form-control" placeholder="241-371">
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-bold">Дополнительный комментарий</label>
+        <textarea name="comment" class="form-control"></textarea>
+    </div>
+    <button type="submit" class="btn btn-dark w-100">Отправить POST запрос</button>
+</form>
+<p class="mt-3 text-muted small">* При нажатии данные сохранятся в сессию и будут доступны на других страницах.</p>
+{% endblock %}
