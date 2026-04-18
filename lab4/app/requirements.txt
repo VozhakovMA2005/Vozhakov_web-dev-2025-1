@@ -21,4 +21,4 @@ werkzeug==3.0.6
 zipp==3.20.2
 gunicorn==23.0.0
 flask-login
-flask-sqlalchemy werkzeug==25.2
+flask-sqlalchemy werkzeug
