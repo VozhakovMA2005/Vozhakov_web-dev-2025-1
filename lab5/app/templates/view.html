@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="mb-4">Данные пользователя</h2>
+<table class="table table-bordered border-dark mt-3">
+    <tr><th class="bg-custom-dark text-white w-25">ID</th><td>{{ user.id }}</td></tr>
+    <tr><th class="bg-custom-dark text-white">Логин</th><td>{{ user.login }}</td></tr>
+    <tr><th class="bg-custom-dark text-white">Фамилия</th><td>{{ user.last_name or '—' }}</td></tr>
+    <tr><th class="bg-custom-dark text-white">Имя</th><td>{{ user.first_name }}</td></tr>
+    <tr><th class="bg-custom-dark text-white">Отчество</th><td>{{ user.middle_name or '—' }}</td></tr>
+    <tr><th class="bg-custom-dark text-white">Роль</th><td>{{ user.role_obj.name if user.role_obj else '—' }}</td></tr>
+</table>
+<a href="{{ url_for('index') }}" class="btn btn-outline-dark">Назад</a>
+{% endblock %}
