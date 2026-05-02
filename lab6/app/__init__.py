@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_migrate import Migrate
 from sqlalchemy.exc import SQLAlchemyError
-
 from app.models import db
 from app.auth import bp as auth_bp, init_login_manager
 from app.courses import bp as courses_bp
