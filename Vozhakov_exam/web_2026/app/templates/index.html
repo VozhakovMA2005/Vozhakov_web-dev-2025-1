@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Список книг</h2>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('books.index') }}" class="row g-3">
+            <div class="col-md-4">
+                <label>Название книги</label>
+                <input type="text" name="title" class="form-control" value="{{ request.args.get('title', '') }}">
+            </div>
+            <div class="col-md-4">
+                <label>Автор</label>
+                <input type="text" name="author" class="form-control" value="{{ request.args.get('author', '') }}">
+            </div>
+            <div class="col-md-4">
+                <label>Объем (стр.)</label>
+                <div class="input-group">
+                    <input type="number" name="volume_from" class="form-control" placeholder="От"
+                        value="{{ request.args.get('volume_from', '') }}">
+                    <input type="number" name="volume_to" class="form-control" placeholder="До"
+                        value="{{ request.args.get('volume_to', '') }}">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label>Жанр</label>
+                <select name="genre" class="form-select" multiple>
+                    {% for g in genres %}
+                    <option value="{{ g.id }}" {% if g.id|string in request.args.getlist('genre') %}selected{% endif %}>
+                        {{ g.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label>Год</label>
+                <select name="year" class="form-select" multiple>
+                    {% for y in years %}
+                    <option value="{{ y }}" {% if y|string in request.args.getlist('year') %}selected{% endif %}>{{ y }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 mt-3">
+                <button type="submit" class="btn btn-yellow">Найти</button>
+                <a href="{{ url_for('books.index') }}" class="btn btn-dark">Сбросить</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if current_user.is_authenticated and current_user.is_admin %}
+<a href="{{ url_for('books.add') }}" class="btn btn-yellow fw-bold mb-3">Добавить книгу</a>
+{% endif %}
+
+<div class="row row-cols-1 row-cols-md-2 g-4">
+    {% for book in books %}
+    <div class="col">
+        <div class="card h-100 d-flex flex-row">
+            <img src="{{ url_for('static', filename='uploads/' + book.cover.file_name) }}"
+                class="img-fluid rounded-start" style="width: 150px; object-fit: cover;">
+            <div class="card-body">
+                <h5 class="card-title">{{ book.title }}</h5>
+                <p class="card-text text-muted">
+                    Автор: {{ book.author }}<br>
+                    Год: {{ book.year }}<br>
+                    Жанр: {% for genre in book.genres %}{{ genre.name }}{% if not loop.last %}, {% endif %}{% endfor %}
+                </p>
+                <div class="mb-2">
+                    <span class="badge bg-warning text-dark">★ {{ "%.1f"|format(book.average_rating) }}</span>
+                    <small class="text-muted">Отзывов: {{ book.reviews|length }}</small>
+                </div>
+
+                <a href="{{ url_for('books.view', book_id=book.id) }}" class="btn btn-dark text-light btn-sm">Просмотр</a>
+
+                {% if current_user.is_authenticated %}
+                {% if current_user.is_admin or current_user.is_moderator %}
+                <a href="{{ url_for('books.edit', book_id=book.id) }}" class="btn btn-warning btn-sm">Редактировать</a>
+                {% endif %}
+                {% if current_user.is_admin %}
+                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                    data-bs-target="#deleteModal{{ book.id }}">Удалить</button>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal{{ book.id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Удаление книги</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    Вы уверены, что хотите удалить книгу "{{ book.title }}"?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+                    <form action="{{ url_for('books.delete', book_id=book.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">Да</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if pagination.has_prev %}
+        <li class="page-item">
+            <a class="page-link text-black fw-bold"
+                href="{{ url_for('books.index', page=pagination.prev_num, title=request.args.get('title'), author=request.args.get('author'), volume_from=request.args.get('volume_from'), volume_to=request.args.get('volume_to')) }}">Назад</a>
+        </li>
+        {% endif %}
+
+        <li class="page-item disabled"><span class="page-link">Страница {{ pagination.page }} из {{ pagination.pages
+                }}</span></li>
+
+        {% if pagination.has_next %}
+        <li class="page-item">
+            <a class="page-link text-black fw-bold"
+                href="{{ url_for('books.index', page=pagination.next_num, title=request.args.get('title'), author=request.args.get('author'), volume_from=request.args.get('volume_from'), volume_to=request.args.get('volume_to')) }}">Вперед</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endblock %}
