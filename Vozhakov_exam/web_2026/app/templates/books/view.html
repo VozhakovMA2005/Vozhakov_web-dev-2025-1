@@ -8,19 +8,21 @@
 <div class="card mb-5">
     <div class="row g-0">
         <div class="col-md-4 bg-light text-center p-3">
-            <img src="{{ url_for('static', filename='uploads/' + book.cover.file_name) }}" class="img-fluid rounded shadow-sm" alt="Обложка">
+            <img src="{{ url_for('static', filename='uploads/' + book.cover.file_name) }}"
+                class="img-fluid rounded shadow-sm" alt="Обложка">
         </div>
         <div class="col-md-8">
             <div class="card-body">
                 <h2 class="card-title fw-bold text-dark mb-3">{{ book.title }}</h2>
                 <ul class="list-group list-group-flush mb-4">
                     <li class="list-group-item bg-transparent"><strong>Автор:</strong> {{ book.author }}</li>
-                    <li class="list-group-item bg-transparent"><strong>Издательство:</strong> {{ book.publisher }} ({{ book.year }} г.)</li>
+                    <li class="list-group-item bg-transparent"><strong>Издательство:</strong> {{ book.publisher }} ({{
+                        book.year }} г.)</li>
                     <li class="list-group-item bg-transparent"><strong>Объём:</strong> {{ book.volume }} стр.</li>
                     <li class="list-group-item bg-transparent">
-                        <strong>Жанры:</strong> 
+                        <strong>Жанры:</strong>
                         {% for genre in book.genres %}
-                            <span class="badge bg-dark text-yellow">{{ genre.name }}</span>
+                        <span class="badge bg-dark text-yellow">{{ genre.name }}</span>
                         {% endfor %}
                     </li>
                 </ul>
@@ -35,38 +37,38 @@
 <h3 class="border-bottom pb-2 mb-4">Рецензии</h3>
 
 {% if current_user.is_authenticated %}
-    {% if user_review %}
-        <div class="card mb-4 border-warning">
-            <div class="card-header bg-warning text-dark">
-                <strong>Ваша рецензия</strong>
-            </div>
-            <div class="card-body">
-                <p>Оценка: {{ user_review.rating }}/5</p>
-                <div>{{ user_review.text|safe }}</div>
-            </div>
-        </div>
-    {% else %}
-        <a href="{{ url_for('reviews.add_review', book_id=book.id) }}" class="btn btn-yellow mb-4">
-            Написать рецензию
-        </a>
-    {% endif %}
+{% if user_review %}
+<div class="card mb-4 border-warning">
+    <div class="card-header bg-warning text-dark">
+        <strong>Ваша рецензия</strong>
+    </div>
+    <div class="card-body">
+        <p>Оценка: {{ user_review.rating }}/5</p>
+        <div>{{ user_review.text_html|safe }}</div>
+    </div>
+</div>
+{% else %}
+<a href="{{ url_for('reviews.add_review', book_id=book.id) }}" class="btn btn-yellow mb-4">
+    Написать рецензию
+</a>
+{% endif %}
 {% endif %}
 
 <div class="row g-3">
     {% for review in book.reviews %}
-        <div class="col-12">
-            <div class="card bg-white">
-                <div class="card-header bg-black text-white d-flex justify-content-between">
-                    <span><strong>{{ review.user.first_name }} {{ review.user.last_name }}</strong></span>
-                    <span class="text-yellow fw-bold">Оценка: {{ review.rating }}/5</span>
-                </div>
-                <div class="card-body">
-                    <p class="card-text">{{ review.text|safe }}</p>
-                </div>
+    <div class="col-12">
+        <div class="card bg-white">
+            <div class="card-header bg-black text-white d-flex justify-content-between">
+                <span><strong>{{ review.user.first_name }} {{ review.user.last_name }}</strong></span>
+                <span class="text-yellow fw-bold">Оценка: {{ review.rating }}/5</span>
+            </div>
+            <div class="card-body">
+                <div class="card-text">{{ review.text_html|safe }}</div>
             </div>
         </div>
+    </div>
     {% else %}
-        <p class="text-muted">На эту книгу пока нет рецензий.</p>
+    <p class="text-muted">На эту книгу пока нет рецензий.</p>
     {% endfor %}
 </div>
 {% endblock %}

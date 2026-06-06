@@ -35,7 +35,7 @@ def index():
     if vol_to.isdigit():
         query = query.filter(Book.volume <= int(vol_to))
 
-    # Сортировка - сначала новые
+    # Сортировка по новизне
     query = query.order_by(Book.year.desc())
     pagination = query.paginate(page=page, per_page=10)
     
@@ -46,13 +46,19 @@ def index():
                            genres=all_genres, years=all_years)
 
 @books_bp.route('/book/<int:book_id>')
+@books_bp.route('/book/<int:book_id>')
 def view(book_id):
     book = Book.query.get_or_404(book_id)
     html_desc = markdown.markdown(book.short_description)
+    
     user_review = None
     if current_user.is_authenticated:
         from app.models import Review
         user_review = Review.query.filter_by(book_id=book.id, user_id=current_user.id).first()
+        if user_review:
+            user_review.text_html = markdown.markdown(user_review.text)
+    for review in book.reviews:
+        review.text_html = markdown.markdown(review.text)
         
     return render_template('books/view.html', book=book, html_desc=html_desc, user_review=user_review)
 
@@ -72,7 +78,7 @@ def add():
         cover_file = request.files.get('cover')
 
         try:
-            # Обработка обложки (MD5 проверка)
+            # Обработка обложки
             file_data = cover_file.read()
             md5_hash = hashlib.md5(file_data).hexdigest()
             cover = Cover.query.filter_by(md5_hash=md5_hash).first()
@@ -81,7 +87,6 @@ def add():
                 cover = Cover(file_name=cover_file.filename, mime_type=cover_file.mimetype, md5_hash=md5_hash)
                 db.session.add(cover)
                 db.session.commit()
-                # Сохраняем физически используя ID
                 cover.file_name = f"{cover.id}_{cover_file.filename}"
                 db.session.commit()
                 cover_file.seek(0)
@@ -134,7 +139,7 @@ def delete(book_id):
     try:
         db.session.delete(book)
         db.session.commit()
-        # Проверяем, используется ли обложка другими книгами
+        # Проверка на использование обложки другими книгами
         if not Book.query.filter_by(cover_id=cover.id).first():
             file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], cover.file_name)
             if os.path.exists(file_path):
